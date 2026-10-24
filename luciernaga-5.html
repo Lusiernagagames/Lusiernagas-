@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Luciérnaga</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600&display=swap">
+<style>
+:root{--bg:#2a1838;--panel:#3a2450;--ink:#f6efe3;--mute:#b9a6e8;--amber:#f2b134;--line:#55386f;--ok:#8fd694;--bad:#ff8a7a}
+:root[data-tema="alba"]{--bg:#f6efe3;--panel:#fffaf0;--ink:#2a1838;--mute:#6d559a;--line:#d9c9e8;--amber:#c97a00;--ok:#2f7a3a;--bad:#b3392b}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 Figtree,system-ui,sans-serif;padding:env(safe-area-inset-top,0) 16px calc(24px + env(safe-area-inset-bottom,0))}
+h1,h2{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0}
+h1{font-size:2rem;font-weight:800}
+h2{font-size:1.15rem;font-weight:600;margin-bottom:8px}
+main{max-width:520px;margin:0 auto;padding-top:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+.aviso{border-color:var(--amber);font-size:.9rem}
+button{font:600 1rem Figtree,system-ui,sans-serif;background:var(--amber);color:#2a1838;border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.sec{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--mute);outline-offset:2px}
+input{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin:6px 0}
+.fila{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.cifras{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.cifras b{display:block;font:800 1.4rem "Bricolage Grotesque",system-ui,sans-serif}
+.cifras span{font-size:.8rem;color:var(--mute)}
+#campo{display:block;width:100%;height:min(62vh,560px);height:min(calc(100dvh - 250px),560px);min-height:320px;border-radius:18px;background:#0d0a24;border:1px solid var(--line);box-shadow:0 12px 32px -12px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.05);touch-action:none}
+.barra{height:10px;border-radius:5px;background:var(--bg);overflow:hidden;margin:10px 0 4px}
+.barra i{display:block;height:100%;width:0;background:var(--amber);transition:width .25s}
+.item{padding:10px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.mute{color:var(--mute);font-size:.85rem}
+#msg{min-height:1.4em;font-size:.9rem;margin-top:8px}
+.oculto{display:none!important}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;background:var(--bg);border-bottom:1px solid var(--line);margin:calc(-16px - env(safe-area-inset-top,0px)) -16px 12px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px}
+.ham{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:44px;height:44px;padding:0;background:transparent;border:1px solid var(--line)}
+.ham i{display:block;width:22px;height:3px;background:var(--ink);border-radius:2px}
+#tituloSec{font:700 1.2rem "Bricolage Grotesque",system-ui,sans-serif}
+#velo{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+#velo.abierto{opacity:1;pointer-events:auto}
+.cajon{position:fixed;top:0;left:0;bottom:0;width:min(80vw,300px);background:var(--panel);border-right:1px solid var(--line);z-index:50;transform:translateX(-102%);visibility:hidden;transition:transform .22s,visibility 0s .22s;padding:calc(14px + env(safe-area-inset-top,0px)) 12px calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+.cajon.abierto{transform:none;visibility:visible;transition:transform .22s,visibility 0s}
+.cajon .cab{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 4px}
+.cajon .cab b{font:800 1.3rem "Bricolage Grotesque",system-ui,sans-serif}
+.cajon .cab button{padding:6px 12px}
+.cajon button.op{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;color:var(--ink);padding:14px 12px;font-size:1.05rem;border-radius:10px}
+.cajon button.op[aria-current="true"]{background:var(--bg);color:var(--amber)}
+@media (prefers-reduced-motion:reduce){.cajon,#velo{transition:none}}
+:root{--ruido:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.tex{position:relative;overflow:hidden;isolation:isolate}
+.tex::before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background-image:var(--ruido);mix-blend-mode:overlay;opacity:.45;pointer-events:none;z-index:-1}
+.tienda-hero{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px;margin:12px 0;border-radius:18px;border:1px solid var(--line);background:radial-gradient(140px 90px at 88% 15%,rgba(242,177,52,.35),transparent),radial-gradient(180px 110px at 8% 100%,rgba(143,214,148,.22),transparent),linear-gradient(135deg,var(--panel),var(--bg))}
+.tienda-hero::after{content:"";position:absolute;right:36px;top:24px;width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px 3px var(--amber),-58px 34px 0 -1px #fff9,-118px -6px 8px 1px rgba(143,214,148,.6);animation:titila 2.6s ease-in-out infinite;pointer-events:none}
+@keyframes titila{50%{opacity:.3}}
+.hero-n{display:flex;align-items:center;gap:8px;font:800 2rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--amber)}
+.hero-n svg{filter:drop-shadow(0 0 6px var(--amber))}
+.tienda-hero p{margin:0;max-width:52%;text-align:right}
+.sec-t{font:700 .78rem Figtree,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:20px 4px 2px}
+.cart{--ac:#b9a6e8;display:grid;grid-template-columns:60px 1fr;gap:12px 14px;align-items:center;padding:14px;margin:10px 0;border-radius:16px;border:1px solid var(--line);border:1px solid color-mix(in srgb,var(--ac) 45%,var(--line));background:var(--panel);background:linear-gradient(160deg,color-mix(in srgb,var(--ac) 16%,var(--panel)),var(--panel) 70%)}
+.cart-ic{width:60px;height:60px;border-radius:16px;display:grid;place-items:center;color:var(--ac);background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--ac) 38%,transparent),rgba(0,0,0,.28));border:1px solid color-mix(in srgb,var(--ac) 55%,transparent);box-shadow:0 0 18px -4px var(--ac),inset 0 1px 0 rgba(255,255,255,.18)}
+.cart-ic svg{width:34px;height:34px}
+.cart-n{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:1.05rem}
+.cart-lv{font-size:.7rem;font-weight:800;padding:2px 9px;border-radius:99px;background:var(--ac);color:#1d1238}
+.pips{display:flex;gap:4px;margin:8px 0 4px}
+.pips i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.pips i.on{background:var(--ac);box-shadow:0 0 6px var(--ac)}
+.cart-ef{font-size:.8rem;font-weight:600;color:var(--mute)}
+.buy{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;font-size:1rem;color:#1d1238;background:var(--ac);background:linear-gradient(180deg,color-mix(in srgb,var(--ac) 80%,#fff),var(--ac));box-shadow:0 3px 0 color-mix(in srgb,var(--ac) 55%,#000)}
+.buy:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 color-mix(in srgb,var(--ac) 55%,#000)}
+.buy.hecho{background:transparent;color:var(--ok);border:1px solid var(--ok);box-shadow:none;opacity:1}
+.cart.bloq{--ac:#9a86c4;border-style:dashed}
+@media (prefers-reduced-motion:reduce){.tienda-hero::after{animation:none}}
+.pie{text-align:center;margin-top:24px}
+.pie a{color:var(--mute);font-size:.8rem}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.rejilla{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.rejilla div{background:var(--bg);border-radius:10px;padding:10px}
+.rejilla b{display:block;font:800 1.3rem "Bricolage Grotesque",system-ui,sans-serif}
+.btns{display:flex;gap:8px;margin-top:8px}
+.pestanas{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.pestanas button{background:transparent;color:var(--mute);border:1px solid var(--line)}
+.pestanas button[aria-selected="true"]{background:var(--amber);color:#2a1838;border-color:var(--amber)}
+.msgf{min-height:1.4em;margin:4px 0 10px}
+form a{color:var(--amber)}
+.perfil{display:flex;align-items:center;gap:14px;padding:18px 4px 6px}
+.avatar{flex:none;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;font:800 1.8rem "Bricolage Grotesque",system-ui,sans-serif;color:#2a1838;background:radial-gradient(circle at 35% 35%,#fff7c9,var(--amber) 55%,#c97a00);box-shadow:0 0 0 4px var(--panel),0 0 28px 6px rgba(242,177,52,.45);animation:brillo 3.2s ease-in-out infinite}
+@keyframes brillo{50%{box-shadow:0 0 0 4px var(--panel),0 0 38px 12px rgba(242,177,52,.7)}}
+.perfil-txt{min-width:0}
+.perfil-txt h2{font-size:1.4rem;margin:0;overflow-wrap:anywhere}
+.chip{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:99px;background:var(--bg);border:1px solid var(--amber);color:var(--amber);font-size:.8rem;font-weight:600}
+.saldo{margin:14px 0;padding:20px 18px;border-radius:18px;border:1px solid var(--amber);background:radial-gradient(120% 140% at 85% -10%,rgba(242,177,52,.25),transparent 55%),var(--panel);text-align:center}
+.saldo-n b{font:800 2.8rem/1.1 "Bricolage Grotesque",system-ui,sans-serif;color:var(--amber)}
+.saldo-n span{font-weight:600;color:var(--mute)}
+.saldo-sub{font-size:.85rem;color:var(--mute);min-height:1.3em;margin-top:2px}
+.acciones{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 8px}
+.acciones button{padding:14px 10px;font-size:1.05rem}
+.mejora{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.mejora:first-child{border-top:0}
+@media (prefers-reduced-motion:reduce){.avatar{animation:none}}
+.exito{border:1px solid var(--ok);border-radius:12px;padding:12px 14px;margin-bottom:12px;background:rgba(143,214,148,.12);color:var(--ink);text-align:center;box-shadow:0 0 22px rgba(143,214,148,.25);animation:aparece .5s ease}
+.exito b{display:block;font:800 1.2rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--ok)}
+@keyframes aparece{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.barra i{transition:none}}
+.dp-steps{display:flex;align-items:center;margin:2px 0 16px}
+.dp-st{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.72rem;color:var(--mute);min-width:62px}
+.dp-st i{font-style:normal;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;border:1px solid var(--line);background:var(--bg)}
+.dp-st.now{color:var(--ink)}
+.dp-st.now i{border-color:var(--amber);color:var(--amber);animation:dpPulso 1.8s ease-out infinite}
+.dp-st.on{color:var(--ink)}
+.dp-st.on i{background:var(--amber);color:#2a1838;border-color:var(--amber);animation:dpPop .5s cubic-bezier(.2,1.6,.4,1) both}
+.dp-lin{flex:1;height:3px;border-radius:2px;background:var(--line);margin:0 4px 18px;position:relative;overflow:hidden}
+.dp-lin.on::after{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:var(--amber);transform-origin:left;animation:dpLlena .7s ease both}
+@keyframes dpLlena{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes dpPop{from{transform:scale(.4)}to{transform:scale(1)}}
+@keyframes dpPulso{0%{box-shadow:0 0 0 0 rgba(242,177,52,.6)}100%{box-shadow:0 0 0 12px rgba(242,177,52,0)}}
+.dp-vista{animation:dpEntra .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes dpEntra{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+.dp-in{animation:dpSube .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*70ms)}
+@keyframes dpSube{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.dp-op{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px;margin:8px 0;border-radius:16px;background:linear-gradient(160deg,rgba(38,161,123,.24),var(--panel) 70%);color:var(--ink);border:1px solid #26a17b;position:relative;overflow:hidden;transition:transform .15s,box-shadow .2s}
+.dp-op::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.2),transparent);transform:skewX(-20deg);animation:dpBrillo 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes dpBrillo{0%,55%{left:-60%}100%{left:130%}}
+.dp-op:hover{box-shadow:0 0 24px -4px #26a17b;transform:translateY(-2px)}
+.dp-op:active{transform:scale(.98)}
+.dp-op b{display:block;font-size:1.1rem}
+.dp-coin{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:#26a17b;color:#fff;font:800 1.7rem "Bricolage Grotesque",system-ui,sans-serif;box-shadow:0 0 0 4px rgba(38,161,123,.25),0 0 22px rgba(38,161,123,.6);animation:dpFlota 3s ease-in-out infinite}
+@keyframes dpFlota{50%{transform:translateY(-4px)}}
+.dp-flecha{margin-left:auto;font-size:1.8rem;color:#26a17b;animation:dpFlecha 1.6s ease-in-out infinite}
+@keyframes dpFlecha{50%{transform:translateX(5px)}}
+.dp-chip{display:inline-block;padding:4px 12px;border-radius:99px;border:1px solid #26a17b;background:rgba(38,161,123,.18);color:var(--ink);font-size:.8rem;font-weight:700}
+.dp-back{background:transparent;color:var(--mute);padding:4px 8px;margin:0 0 8px -8px;border:0}
+.dp-back:hover{color:var(--ink)}
+.dp-grande{width:100%;padding:16px;font-size:1.1rem;position:relative;overflow:hidden;box-shadow:0 0 0 0 rgba(242,177,52,.6);animation:dpPulso 2.2s ease-out infinite}
+.dp-grande::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:dpBrillo 2.6s ease-in-out infinite;pointer-events:none}
+.dp-tiempo{display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 12px;border-radius:12px;background:rgba(242,177,52,.12);border:1px solid var(--amber);font-size:.85rem}
+.dp-reloj{display:inline-block;animation:dpTic 2s ease-in-out infinite}
+@keyframes dpTic{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
+.dp-carga{text-align:center;padding:30px 0 18px}
+.dp-anw{position:relative;width:92px;height:92px;margin:0 auto 16px;display:grid;place-items:center}
+.dp-anillo{position:absolute;top:0;left:0;width:92px;height:92px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--amber);border-right-color:#26a17b;animation:dpGira 1s linear infinite}
+@keyframes dpGira{to{transform:rotate(360deg)}}
+.dp-coin.dp-chico{width:44px;height:44px;font-size:1.4rem}
+.dp-tx{font-weight:600;animation:dpSube .4s ease both}
+.dp-qrc{text-align:center;margin:6px 0 10px}
+.dp-qrwrap{position:relative;display:inline-block;padding:12px;background:#fff;border-radius:16px;box-shadow:0 0 0 3px #26a17b,0 0 32px rgba(38,161,123,.55);animation:dpQr .8s cubic-bezier(.2,1.3,.4,1) .15s both}
+@keyframes dpQr{from{opacity:0;transform:scale(.55) rotate(-8deg)}to{opacity:1;transform:none}}
+.dp-qrwrap::after{content:"";position:absolute;left:8px;right:8px;top:12px;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,#26a17b,transparent);box-shadow:0 0 12px 2px #26a17b;animation:dpEscan 2.4s ease-in-out infinite;pointer-events:none}
+@keyframes dpEscan{0%,100%{top:12px}50%{top:calc(100% - 15px)}}
+.dp-dir{word-break:break-all;text-align:center;font:600 .9rem ui-monospace,Menlo,monospace;background:var(--bg);border:1px dashed #26a17b;border-radius:12px;padding:12px;margin:8px 0}
+.dp-sep{display:flex;align-items:center;gap:10px;margin:16px 0 4px;color:var(--mute);font-size:.8rem}
+.dp-sep::before,.dp-sep::after{content:"";flex:1;height:1px;background:var(--line)}
+.dp-req{color:var(--bad);font-weight:800}
+@media (prefers-reduced-motion:reduce){.dp-st i,.dp-lin::after,.dp-vista,.dp-in,.dp-op::after,.dp-coin,.dp-flecha,.dp-grande,.dp-grande::after,.dp-reloj,.dp-anillo,.dp-tx,.dp-qrwrap,.dp-qrwrap::after{animation:none!important}}
+.cajon button.op{transition:background .2s,transform .15s}
+.mi{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;--ac:#b9a6e8;background:radial-gradient(circle at 30% 22%,rgba(255,255,255,.2),transparent 45%),radial-gradient(circle at 50% 120%,color-mix(in srgb,var(--ac) 40%,transparent),rgba(0,0,0,.35));border:1px solid color-mix(in srgb,var(--ac) 60%,transparent);box-shadow:0 0 14px -4px var(--ac),inset 0 1px 0 rgba(255,255,255,.22);transition:transform .25s cubic-bezier(.2,1.5,.4,1),box-shadow .25s}
+.mi svg{width:34px;height:34px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}
+.cajon button.op:hover .mi{transform:scale(1.1) rotate(-4deg)}
+.cajon button.op:active .mi{transform:scale(.94)}
+.cajon button.op[aria-current="true"] .mi{box-shadow:0 0 22px -1px var(--ac),inset 0 1px 0 rgba(255,255,255,.3);animation:miFlota 3s ease-in-out infinite}
+@keyframes miFlota{50%{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){.cajon button.op[aria-current="true"] .mi{animation:none}.mi{transition:none}}
+.sndbtn{margin-left:auto;display:grid;place-items:center;width:44px;height:44px;padding:0;background:transparent;color:var(--ink);border:1px solid var(--line)}
+.sw{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);cursor:pointer;position:relative}
+.sw input{position:absolute;opacity:0;width:0;height:0;margin:0;padding:0;border:0}
+.sw i{flex:none;width:46px;height:26px;border-radius:13px;background:var(--line);position:relative;transition:background .2s}
+.sw i::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--ink);transition:transform .2s,background .2s}
+.sw input:checked+i{background:var(--amber)}
+.sw input:checked+i::after{transform:translateX(20px);background:#2a1838}
+.sw input:focus-visible+i{outline:3px solid var(--mute);outline-offset:2px}
+input[type=range]{padding:0;border:0;background:transparent;accent-color:var(--amber);height:32px}
+@media (prefers-reduced-motion:reduce){.sw i,.sw i::after{transition:none}}
+.ref-cod{font:800 2.3rem "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:.2em;color:var(--amber);text-shadow:0 0 18px rgba(242,177,52,.6);animation:refBrilla 3s ease-in-out infinite}
+@keyframes refBrilla{50%{text-shadow:0 0 30px rgba(242,177,52,.95);transform:scale(1.03)}}
+.ref-reg{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.ref-reg:first-of-type{border-top:0}
+.ref-n{flex:none;min-width:86px;text-align:center;padding:6px 8px;border-radius:12px;font:800 1.1rem "Bricolage Grotesque",system-ui,sans-serif;background:rgba(242,177,52,.15);border:1px solid var(--amber);color:var(--amber)}
+@media (prefers-reduced-motion:reduce){.ref-cod{animation:none}}
+.rul-wrap{position:relative;width:min(100%,300px);margin:14px auto 8px;border-radius:50%;box-shadow:0 0 34px -4px rgba(242,177,52,.55)}
+.rul-rueda{width:100%;transform-origin:50% 50%;will-change:transform}
+.rul-puntero{position:absolute;left:50%;top:-10px;transform:translateX(-50%);width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:26px solid #fff6c7;filter:drop-shadow(0 2px 6px rgba(0,0,0,.7));z-index:2}
+.pet-ic svg,.cart-ic.pet-ic svg{width:48px;height:48px}
+.pet-grande{flex:none;width:64px;height:64px;animation:dpFlota 3s ease-in-out infinite}
+.pet-grande svg{width:64px;height:64px;filter:drop-shadow(0 0 10px rgba(242,177,52,.6))}
+select{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin:6px 0}
+@media (prefers-reduced-motion:reduce){.pet-grande{animation:none}.rul-rueda{transition:none!important}}
+.topbar .ham{display:none}
+#juego{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+.hud{padding:10px 14px 8px;margin:0 0 10px;border-radius:16px;border:1px solid var(--line);background:radial-gradient(120% 160% at 90% -30%,rgba(242,177,52,.18),transparent 55%),var(--panel)}
+.hud-fila{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hud-c{display:flex;align-items:center;gap:6px}
+.hud-c svg{color:var(--amber)}
+.hud-c b{font:800 1.4rem/1 "Bricolage Grotesque",system-ui,sans-serif}
+.hud-c span{font-size:.82rem;color:var(--mute)}
+.hud-c.usdt b{color:var(--ok)}
+.hud-nv{padding:4px 12px;border-radius:99px;background:var(--amber);color:#2a1838;font-weight:800;font-size:.9rem}
+.hud .barra{margin:8px 0 4px}
+.hud-pie{display:flex;justify-content:space-between;flex-wrap:wrap;gap:2px 10px;font-size:.82rem;color:var(--mute)}
+#hJoya{font-weight:600;color:var(--amber)}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.bnav>div{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.bnav button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:54px;padding:6px 0;background:transparent;color:var(--mute);font:600 .76rem Figtree,system-ui,sans-serif;border-radius:12px;transition:color .2s,background .2s}
+.bnav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bnav button[aria-current="true"]{color:var(--amber);background:var(--bg)}
+.bd{position:absolute;top:2px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font:800 .7rem/18px Figtree,system-ui,sans-serif;text-align:center;font-style:normal}
+.cart-ic img{width:52px;height:52px}
+.toast{position:fixed;top:calc(72px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:35;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 18px;border-radius:16px;background:var(--panel);border:1px solid var(--ac,var(--amber));box-shadow:0 0 24px -4px var(--ac,var(--amber)),0 10px 24px -10px rgba(0,0,0,.7);text-align:center;max-width:min(92vw,420px);pointer-events:none;animation:toastIn .45s cubic-bezier(.2,1.4,.4,1) both}
+.toast b{font:800 1.05rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--ac,var(--amber))}
+.toast span{font-size:.85rem}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,-14px) scale(.9)}to{opacity:1;transform:translateX(-50%)}}
+#campo.destello{animation:destello 1.6s ease-out}
+@keyframes destello{0%{box-shadow:0 0 0 3px var(--ac,#ffd36a),inset 0 0 44px 8px var(--ac,#ffd36a)}100%{box-shadow:0 12px 32px -12px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.05)}}
+@media (prefers-reduced-motion:reduce){.bnav button{transition:none}.toast{animation:none}#campo.destello{animation:none}}
+.hoy{margin:6px 0 10px;border-radius:16px;border:1px solid var(--line);background:var(--panel)}
+.hoy summary{display:flex;align-items:center;gap:10px;padding:12px 14px;min-height:48px;cursor:pointer;font:700 1.05rem "Bricolage Grotesque",system-ui,sans-serif;list-style:none}
+.hoy summary::-webkit-details-marker{display:none}
+.hoy summary::after{content:"";width:8px;height:8px;margin-left:auto;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);transition:transform .2s}
+.hoy[open] summary::after{transform:rotate(-135deg)}
+.hoy-n{padding:2px 10px;border-radius:99px;background:var(--amber);color:#2a1838;font:800 .78rem Figtree,system-ui,sans-serif}
+.hoy-l{padding:0 8px 6px}
+.hoy-f{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:8px;background:transparent;color:var(--ink);text-align:left;border-radius:0;border-top:1px solid var(--line)}
+.hoy-ck{flex:none;position:relative;width:24px;height:24px;border-radius:50%;border:2px solid var(--amber)}
+.hoy-f.hecho .hoy-ck{background:var(--ok);border-color:var(--ok)}
+.hoy-f.hecho .hoy-ck::after{content:"";position:absolute;left:6px;top:2px;width:6px;height:11px;border-right:2.5px solid #1d1238;border-bottom:2.5px solid #1d1238;transform:rotate(45deg)}
+.hoy-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.hoy-t b{font-size:.95rem}
+.hoy-t small{font-size:.82rem;color:var(--mute)}
+.hoy-f.hecho .hoy-t b{color:var(--mute)}
+.hoy-b{display:block;height:6px;border-radius:3px;background:var(--bg);overflow:hidden;margin-top:4px}
+.hoy-b i{display:block;height:100%;background:var(--amber)}
+.hoy-go{color:var(--mute);font-size:1.4rem}
+@media (prefers-reduced-motion:reduce){.hoy summary::after{transition:none}}
+.guia{position:fixed;top:0;left:0;right:0;bottom:0;z-index:42;display:flex;align-items:flex-end;justify-content:center;padding:16px 16px calc(84px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.guia.fondo{background:rgba(0,0,0,.6);align-items:center;padding-bottom:16px;pointer-events:auto}
+.guia-c{pointer-events:auto;width:min(100%,420px);padding:18px;border-radius:20px;text-align:center;background:var(--panel);border:1px solid var(--amber);box-shadow:0 0 30px -6px var(--amber),0 16px 40px -12px rgba(0,0,0,.8);animation:aparece .4s ease both}
+.guia-c h2{font-size:1.25rem;margin-bottom:6px}
+.guia-c p{margin:0 0 12px}
+.guia-pts{display:flex;justify-content:center;gap:6px;margin:0 0 12px}
+.guia-pts i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.guia-pts i.on{background:var(--amber)}
+.guia-arts{display:flex;justify-content:center;gap:4px;margin:0 0 6px}
+.guia-arts img{width:76px;height:76px}
+.guia-b{display:flex;gap:8px}
+.guia-b button{flex:1}
+@media (prefers-reduced-motion:reduce){.guia-c{animation:none}}
+</style>
+</head>
+<body>
+<main>
+
+<!-- ============ JUEGO ============ -->
+<div id="app">
+  <section id="registro">
+    <h1>Luciérnaga</h1>
+    <p class="mute">Desliza el dedo para atrapar luciérnagas, sube de nivel y gana recompensas pequeñas.</p>
+    
+    <div class="panel">
+      <div class="pestanas" role="tablist">
+        <button type="button" role="tab" id="tabLogin" data-m="login" aria-selected="true">Iniciar sesión</button>
+        <button type="button" role="tab" id="tabReg" data-m="reg" aria-selected="false">Crear cuenta</button>
+      </div>
+
+      <div id="formLogin">
+        <div id="lExito" class="exito oculto" role="status"></div>
+        <label for="lUser">Usuario</label>
+        <input id="lUser" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false">
+        <label for="lPass">Contraseña</label>
+        <input id="lPass" type="password" autocomplete="current-password">
+        <div class="mute msgf" id="lMsg" role="status"></div>
+        <button type="button" id="btnLogin">Iniciar sesión</button>
+        <p class="mute">¿No tienes cuenta? <a href="#" data-m="reg">Regístrate</a></p>
+      </div>
+
+      <div id="formReg" class="oculto">
+        <label for="rUser">Usuario (3 a 20 caracteres)</label>
+        <input id="rUser" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false">
+        <label for="rPass">Contraseña (mínimo 6 caracteres)</label>
+        <input id="rPass" type="password" autocomplete="new-password">
+        <label for="rPass2">Repite la contraseña</label>
+        <input id="rPass2" type="password" autocomplete="new-password">
+        <label for="rRef">Código de referido (opcional)</label>
+        <input id="rRef" maxlength="12" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="Ej. K7P2QX">
+        <div class="mute msgf" id="rMsg" role="status"></div>
+        <button type="button" id="btnReg">Crear cuenta</button>
+        <p class="mute">¿Ya tienes cuenta? <a href="#" data-m="login">Inicia sesión</a></p>
+      </div>
+    </div>
+    <p class="mute" style="text-align:center;margin-top:14px"><a href="#admin" id="lnkAdmin">Administración</a></p>
+  </section>
+
+  <div id="juego" class="oculto">
+    <header class="topbar">
+      <button type="button" class="ham" id="btnMenu" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu"><i></i><i></i><i></i></button>
+      <span id="tituloSec">Jugar</span>
+      <button type="button" class="sndbtn" id="btnSnd" aria-label="Silenciar sonido" aria-pressed="false"></button>
+    </header>
+    <div id="velo"></div>
+    <aside class="cajon" id="menu" aria-label="Menú" aria-hidden="true">
+      <div class="cab"><b>Luciérnaga</b><button type="button" class="sec" id="btnCerrarMenu" aria-label="Cerrar menú">✕</button></div>
+      <button type="button" class="op" data-t="jugar" aria-current="true"><span class="mi" style="--ac:#b6f36a"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><radialGradient id="mjA" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fffbd6"/><stop offset=".45" stop-color="#b6f36a"/><stop offset="1" stop-color="#b6f36a" stop-opacity="0"/></radialGradient><linearGradient id="mjB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a5240"/><stop offset="1" stop-color="#1d130e"/></linearGradient></defs><circle cx="24" cy="30" r="16" fill="url(#mjA)" opacity=".8"/><ellipse cx="14" cy="19" rx="9.5" ry="4.5" transform="rotate(-35 14 19)" fill="#e8f4ff" fill-opacity=".5" stroke="#fff" stroke-opacity=".7" stroke-width=".7"/><ellipse cx="34" cy="19" rx="9.5" ry="4.5" transform="rotate(35 34 19)" fill="#e8f4ff" fill-opacity=".5" stroke="#fff" stroke-opacity=".7" stroke-width=".7"/><ellipse cx="24" cy="23" rx="5.2" ry="9.5" fill="url(#mjB)"/><ellipse cx="24" cy="31" rx="4.8" ry="6" fill="url(#mjA)"/><circle cx="24" cy="32" r="2.6" fill="#fffdea"/><path d="M20 21h8M20.5 24.5h7" stroke="#d4623f" stroke-width="1.2" stroke-linecap="round"/><circle cx="24" cy="13.5" r="3.6" fill="#2a1d18"/><circle cx="22.8" cy="13" r=".7" fill="#fff"/><circle cx="25.2" cy="13" r=".7" fill="#fff"/><path d="M22.4 11C21 8 18.5 7 16.5 7.5M25.6 11C27 8 29.5 7 31.5 7.5" stroke="#2a1d18" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg></span><span>Jugar</span></button>
+      <button type="button" class="op" data-t="tienda" aria-current="false"><span class="mi" style="--ac:#4fd1c5"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="mtA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ff2e6"/><stop offset="1" stop-color="#1d9c92"/></linearGradient></defs><path d="M17 17v-3a7 7 0 0 1 14 0v3" fill="none" stroke="#e6fffb" stroke-width="2.8" stroke-linecap="round"/><path d="M10 17h28l-2 24a3 3 0 0 1-3 2.8H15a3 3 0 0 1-3-2.8z" fill="url(#mtA)" stroke="#d9fffb" stroke-width="1.2"/><path d="M10 17h28l-.4 5H10.4z" fill="#fff" opacity=".22"/><path d="M24 25l2 4.6 4.8 1.9-4.8 1.9L24 38l-2-4.6-4.8-1.9 4.8-1.9z" fill="#fff6c7"/><circle cx="39" cy="9" r="1.8" fill="#fff"/><circle cx="8" cy="11" r="1.2" fill="#fff" opacity=".8"/></svg></span><span>Tienda</span></button>
+      <button type="button" class="op" data-t="mercado" aria-current="false"><span class="mi" style="--ac:#ffd36a"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M13 9h22l9 12-20 20L4 21z" fill="#ffd36a" stroke="#fff3c0" stroke-width="1.4"/><path d="M4 21h40M17 21l7 20 7-20M13 9l4 12 7-12 7 12 4-12" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/></svg></span><span>Mercado</span></button>
+      <button type="button" class="op" data-t="swap" aria-current="false"><span class="mi" style="--ac:#b48cff"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="msA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe58a"/><stop offset="1" stop-color="#d98a00"/></linearGradient></defs><path d="M9.5 22a14.5 14.5 0 0 1 25-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#eadcff"/><path d="M36 7.5l-1 7.5-7.5-1" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#eadcff"/><path d="M38.5 26a14.5 14.5 0 0 1-25 8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#eadcff"/><path d="M12 40.5l1-7.5 7.5 1" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#eadcff"/><circle cx="24" cy="24" r="8.5" fill="url(#msA)" stroke="#fff3c0" stroke-width="1.2"/><path d="M24 18.5l1.5 3.6 3.9.3-3 2.5 1 3.8-3.4-2.1-3.4 2.1 1-3.8-3-2.5 3.9-.3z" fill="#fff8d8"/></svg></span><span>Cambiar luz</span></button>
+      <button type="button" class="op" data-t="premium" aria-current="false"><span class="mi" style="--ac:#f2b134"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><radialGradient id="mpA" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fffbd6"/><stop offset=".45" stop-color="#ffe27a"/><stop offset="1" stop-color="#f2b134" stop-opacity="0"/></radialGradient><linearGradient id="mpB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a0"/><stop offset="1" stop-color="#c97a00"/></linearGradient><linearGradient id="mpC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#bfd8ff"/></linearGradient></defs><path d="M16 14h16v3c4 2 6 6 6 11v9a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6v-9c0-5 2-9 6-11z" fill="url(#mpC)" fill-opacity=".22" stroke="#ffeab8" stroke-width="1.7"/><circle cx="24" cy="31" r="11" fill="url(#mpA)"/><circle cx="20" cy="28" r="1.7" fill="#fffbd0"/><circle cx="28.5" cy="33" r="1.9" fill="#fffbd0"/><circle cx="24" cy="23.5" r="1.5" fill="#fffbd0"/><circle cx="18.5" cy="36" r="1.4" fill="#fffbd0"/><circle cx="29" cy="26" r="1.2" fill="#fffbd0"/><path d="M14 26v9" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/><rect x="14.5" y="7" width="19" height="7" rx="2.5" fill="url(#mpB)" stroke="#fff0c2" stroke-width="1"/><path d="M17 10.5h14" stroke="#9a5a00" stroke-opacity=".5" stroke-width="1.2"/></svg></span><span>Premium</span></button>
+      <button type="button" class="op" data-t="ref" aria-current="false"><span class="mi" style="--ac:#5bc0ff"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="mfA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a6e4ff"/><stop offset="1" stop-color="#2f7fe0"/></linearGradient></defs><circle cx="11" cy="21" r="5" fill="url(#mfA)" opacity=".8"/><path d="M2 39c0-6.5 4-10 9-10s9 3.5 9 10z" fill="url(#mfA)" opacity=".8"/><circle cx="37" cy="21" r="5" fill="url(#mfA)" opacity=".8"/><path d="M28 39c0-6.5 4-10 9-10s9 3.5 9 10z" fill="url(#mfA)" opacity=".8"/><path d="M15 17q9-9 18 0" fill="none" stroke="#fff" stroke-width="1.4" stroke-dasharray="2 3" opacity=".7"/><circle cx="24" cy="19" r="7" fill="url(#mfA)" stroke="#e6f6ff" stroke-width="1.2"/><path d="M10 43c0-8.5 6-13.5 14-13.5S38 34.5 38 43z" fill="url(#mfA)" stroke="#e6f6ff" stroke-width="1.2"/><ellipse cx="21.5" cy="16.5" rx="2.8" ry="1.8" fill="#fff" opacity=".4"/><path d="M41 4l1.3 3.2 3.2 1.3-3.2 1.3L41 13l-1.3-3.2-3.2-1.3 3.2-1.3z" fill="#fff6c7"/></svg></span><span>Referidos</span></button>
+      <button type="button" class="op" data-t="rul" aria-current="false"><span class="mi" style="--ac:#ff7a7a"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3l-4.5 8h9z" fill="#ffd05a" stroke="#fff" stroke-width="1"/><path d="M24 26V9A17 17 0 0 1 41 26z" fill="#ff7a7a"/><path d="M24 26h17A17 17 0 0 1 24 43z" fill="#ffd05a"/><path d="M24 26v17A17 17 0 0 1 7 26z" fill="#5bc0ff"/><path d="M24 26H7A17 17 0 0 1 24 9z" fill="#8fd694"/><circle cx="24" cy="26" r="17" fill="none" stroke="#fff" stroke-width="1.6"/><circle cx="24" cy="26" r="4.5" fill="#2a1838" stroke="#ffd05a" stroke-width="1.6"/></svg></span><span>Ruleta</span></button>
+      <button type="button" class="op" data-t="masc" aria-current="false"><span class="mi" style="--ac:#c8a2ff"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="mpwA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0c8ff"/><stop offset="1" stop-color="#8a5ae0"/></linearGradient></defs><ellipse cx="24" cy="32" rx="11" ry="9" fill="url(#mpwA)" stroke="#f3e8ff" stroke-width="1"/><ellipse cx="10.5" cy="22" rx="4.5" ry="6" transform="rotate(-20 10.5 22)" fill="url(#mpwA)"/><ellipse cx="19.5" cy="13" rx="4.5" ry="6.5" fill="url(#mpwA)"/><ellipse cx="28.5" cy="13" rx="4.5" ry="6.5" fill="url(#mpwA)"/><ellipse cx="37.5" cy="22" rx="4.5" ry="6" transform="rotate(20 37.5 22)" fill="url(#mpwA)"/><ellipse cx="20" cy="29" rx="4" ry="2.4" fill="#fff" opacity=".35"/><path d="M41 4l1.3 3.2 3.2 1.3-3.2 1.3L41 13l-1.3-3.2-3.2-1.3 3.2-1.3z" fill="#fff6c7"/></svg></span><span>Mascotas</span></button>
+      <button type="button" class="op" data-t="eq" aria-current="false"><span class="mi" style="--ac:#5be0a8"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="meA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ff0c0"/><stop offset="1" stop-color="#1d9c6a"/></linearGradient></defs><ellipse cx="11.5" cy="44" rx="7" ry="2.5" fill="#0b5a43" opacity=".6"/><rect x="10" y="6" width="3" height="38" rx="1.5" fill="#d6fff0"/><path d="M13 8c8-4 14 4 22 0v18c-8 4-14-4-22 0z" fill="url(#meA)" stroke="#e5fff3" stroke-width="1.2"/><path d="M24 11.5l1.6 3.6 3.9.3-3 2.5.9 3.8-3.4-2-3.4 2 .9-3.8-3-2.5 3.9-.3z" fill="#fff6c7"/><circle cx="38" cy="36" r="4" fill="url(#meA)"/><path d="M31 46c0-5 3-8 7-8s7 3 7 8z" fill="url(#meA)"/></svg></span><span>Equipo y regalos</span></button>
+      <button type="button" class="op" data-t="deposito" aria-current="false"><span class="mi" style="--ac:#26c498"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="mdA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fe0b6"/><stop offset="1" stop-color="#0f7a5c"/></linearGradient><linearGradient id="mdB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9bf5d8"/><stop offset="1" stop-color="#26c498"/></linearGradient></defs><path d="M12 26v10c0 2.5 5.4 4.5 12 4.5s12-2 12-4.5V26z" fill="url(#mdA)"/><path d="M12 31c0 2.5 5.4 4.5 12 4.5s12-2 12-4.5M12 36c0 2.5 5.4 4.5 12 4.5s12-2 12-4.5" stroke="#0b5a43" stroke-width="1.2" fill="none"/><ellipse cx="24" cy="26" rx="12" ry="4.5" fill="url(#mdB)" stroke="#d6fff1" stroke-width="1"/><text x="24" y="28" text-anchor="middle" font-size="7" font-weight="800" fill="#0b5a43" font-family="Arial,sans-serif">₮</text><path d="M24 4.5v12M18 11l6 6 6-6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Depósito</span></button>
+      <button type="button" class="op" data-t="validar" aria-current="false"><span class="mi" style="--ac:#8fd694"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="mvA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9df0a6"/><stop offset="1" stop-color="#2f9a47"/></linearGradient></defs><path d="M24 5l15 5.5v11c0 10-6.5 17-15 21.5C15.5 38.5 9 31.5 9 21.5v-11z" fill="url(#mvA)" stroke="#e5ffe6" stroke-width="1.6"/><path d="M24 5l15 5.5v11c0 10-6.5 17-15 21.5z" fill="#fff" opacity=".14"/><path d="M16.5 24l5.5 5.5L32 18.5" fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Validar dirección</span></button>
+      <button type="button" class="op" data-t="retiros" aria-current="false"><span class="mi" style="--ac:#ffd05a"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="mrA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe488"/><stop offset="1" stop-color="#d89a10"/></linearGradient></defs><rect x="6" y="19" width="36" height="22" rx="4" fill="url(#mrA)" stroke="#fff3c0" stroke-width="1.2"/><rect x="10.5" y="23" width="27" height="14" rx="2.5" fill="none" stroke="#7a4f00" stroke-opacity=".5" stroke-width="1.1"/><circle cx="24" cy="30" r="4.8" fill="#fff3c0" stroke="#b97a00" stroke-width="1"/><path d="M24 27.6v4.8M22.2 28.6h2.8a1.1 1.1 0 0 1 0 2.2h-1.8a1.1 1.1 0 0 0 0 2.2h2.8" stroke="#8a5a00" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="14" cy="26.5" r="1.3" fill="#8a5a00" opacity=".6"/><circle cx="34" cy="33.5" r="1.3" fill="#8a5a00" opacity=".6"/><path d="M24 3.5v12.5M18 9.5l6-6 6 6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Retiros</span></button>
+      <button type="button" class="op" data-t="cuenta" aria-current="false"><span class="mi" style="--ac:#ff9ec4"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="mcA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc4dd"/><stop offset="1" stop-color="#d9528a"/></linearGradient></defs><circle cx="24" cy="24" r="21.5" fill="none" stroke="#ffd1e4" stroke-opacity=".55" stroke-width="1.3" stroke-dasharray="3 3"/><path d="M9 42c0-8.5 6.5-13.5 15-13.5S39 33.5 39 42z" fill="url(#mcA)" stroke="#ffe3ef" stroke-width="1"/><circle cx="24" cy="18" r="8" fill="url(#mcA)" stroke="#ffe3ef" stroke-width="1"/><ellipse cx="21" cy="15.5" rx="3.2" ry="2" fill="#fff" opacity=".4"/></svg></span><span>Cuenta</span></button>
+    </aside>
+    <div id="guia" class="guia oculto" role="dialog" aria-label="Guía de bienvenida"></div>
+    <div id="toast" class="toast oculto" role="status" aria-live="polite"></div>
+    <nav class="bnav" aria-label="Navegación principal"><div>
+      <button type="button" data-b="jugar" aria-current="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18 16l.8 2.2L21 19l-2.2.8L18 22l-.8-2.2L15 19l2.2-.8z"/></svg><span>Jugar</span></button>
+      <button type="button" data-b="tienda" aria-current="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Tienda</span></button>
+      <button type="button" data-b="mercado" aria-current="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10l4 6-9 11L3 10z"/><path d="M3 10h18M9 4l-2 6 5 11 5-11-2-6"/></svg><i class="bd oculto" id="bdMer">0</i><span>Mercado</span></button>
+      <button type="button" data-b="cuenta" aria-current="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg><span>Cuenta</span></button>
+      <button type="button" data-b="mas" aria-current="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>Más</span></button>
+    </div></nav>
+    <div id="anuncio" class="panel aviso oculto"></div>
+
+    <div id="t_jugar">
+      <section class="hud" aria-label="Tu progreso">
+        <div class="hud-fila">
+          <div class="hud-c"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg><b id="luz">0</b><span>luz</span></div>
+          <div class="hud-nv">Nv <span id="nivel" style="color:inherit;font-size:inherit">1</span></div>
+          <div class="hud-c usdt"><b id="cred">0.00</b><span>USDT</span></div>
+        </div>
+        <div class="barra" aria-hidden="true"><i id="prog"></i></div>
+        <div class="hud-pie"><span id="progTxt"></span><span id="hJoya"></span></div>
+      </section>
+      <div id="limite" class="panel aviso oculto" role="status"><b>🌙 Llegaste al límite de hoy</b><div style="margin-top:4px">Ya no puedes atrapar más luz hasta mañana. Si quieres seguir jugando, compra un frasco premium: sube tu límite diario.</div><div class="btns"><button type="button" id="btnPremLim">Ver frascos premium</button></div></div>
+      <canvas id="campo" aria-label="Campo de juego: desliza el dedo para atrapar luciérnagas"></canvas>
+      <div id="msg" role="status"></div>
+      <details class="hoy" id="hoyCard" open><summary>Hoy<span class="hoy-n oculto" id="hoyN">Ruleta lista</span></summary><div class="hoy-l" id="hoyL"></div></details>
+    </div>
+
+    <div id="t_tienda" class="oculto">
+      <section class="tienda-hero tex">
+        <div><div class="mute">Tu luz</div><div class="hero-n"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg><b id="tLuz">0</b></div><div class="mute" id="tBono"></div></div>
+        <p class="mute">Se paga con luz del juego. Solo aceleran la partida o cambian el aspecto; no cambian la recompensa en dinero.</p>
+      </section>
+      <div id="tienda"></div>
+    </div>
+
+    <div id="t_swap" class="oculto">
+      <div id="swPanel"></div>
+    </div>
+
+    <div id="t_ref" class="oculto"><div id="refPanel"></div></div>
+    <div id="t_mercado" class="oculto"><div id="merPanel"></div></div>
+    <div id="t_rul" class="oculto"><div id="rulPanel"></div></div>
+    <div id="t_masc" class="oculto"><div id="mascPanel"></div></div>
+    <div id="t_eq" class="oculto"><div id="eqPanel"></div></div>
+
+    <div id="t_premium" class="oculto">
+      <div id="prPanel"></div>
+    </div>
+
+    <div id="t_deposito" class="oculto">
+      <section class="panel" id="depPanel"></section>
+    </div>
+
+    <div id="t_validar" class="oculto">
+      <section class="panel" id="valPanel"></section>
+    </div>
+
+    <div id="t_retiros" class="oculto">
+      <section class="panel">
+        <h2>Recompensas</h2>
+        <p class="mute">Cambia tu luz por USDT en la sección Cambiar luz. Hay un tope diario por jugador y el total sale de un fondo limitado.</p>
+        <div class="fila"><span>Hoy: <b id="hoy">0.00</b> / <span id="tope"></span> USDT</span><span>Fondo: <b id="fondo"></b> USDT</span></div>
+      </section>
+      <section class="panel" id="secRetirar">
+        <h2>Retirar</h2>
+        <div class="mute">Se pagará a tu dirección validada (pestaña Validar):</div><div id="walletOk" style="word-break:break-all">—</div>
+        
+        <button id="btnRetiro">Solicitar retiro (mínimo <span id="min"></span> USDT)</button>
+        <div class="mute" id="retMsg"></div>
+        <div id="misRetiros"></div>
+      </section>
+      <div class="panel aviso">Al solicitar un retiro queda en aprobación hasta que el administrador lo pague.</div>
+    </div>
+
+    <div id="t_cuenta" class="oculto">
+      <section class="perfil">
+        <div class="avatar" id="cAvatar" aria-hidden="true"></div>
+        <div class="perfil-txt">
+          <h2 id="hola"></h2>
+          <div class="mute" id="cDesde"></div>
+          <span class="chip" id="cNivel"></span>
+        </div>
+      </section>
+
+      <section class="saldo">
+        <div class="mute">Saldo disponible</div>
+        <div class="saldo-n"><b id="cSaldo">0.00</b> <span>USDT</span></div>
+        <div class="saldo-sub" id="cPend"></div>
+        <div class="saldo-sub" id="cDep"></div>
+        <div class="acciones">
+          <button type="button" id="cBtnRetirar">Retirar</button>
+          <button type="button" class="sec" id="cBtnDepositar">Depositar</button>
+        </div>
+        <div class="mute" id="cAyuda"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Tu resumen</h2>
+        <div class="rejilla">
+          <div><b id="cGanado">0.00</b><span class="mute">USDT ganados</span></div>
+          <div><b id="cHoy">0.00</b><span class="mute">ganados hoy</span></div>
+          <div><b id="cAtr">0</b><span class="mute">luciérnagas atrapadas</span></div>
+          <div><b id="cLuzTot">0</b><span class="mute">luz total</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Tu dirección de pago</h2>
+        <div id="cWallet" class="mute"></div>
+      </section>
+
+      <section class="panel" id="sndPanel">
+        <h2>Sonido</h2>
+        <label class="sw"><span>Efectos de sonido</span><input type="checkbox" id="sFx"><i></i></label>
+        <label class="sw"><span>Ambiente nocturno</span><input type="checkbox" id="sAmb"><i></i></label>
+        <label class="sw"><span>Vibración</span><input type="checkbox" id="sVib"><i></i></label>
+        <label for="sVol" style="display:block;margin-top:10px">Volumen</label><input id="sVol" type="range" min="0" max="100">
+        <div class="btns"><button type="button" class="sec" id="sTest">Probar sonido</button></div>
+      </section>
+
+      <section class="panel">
+        <h2>Tus mejoras</h2>
+        <div id="cMejoras"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Últimos retiros</h2>
+        <div id="cMov"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Últimos depósitos</h2>
+        <div id="cDepMov"></div>
+      </section>
+
+      <div class="pie"><button class="sec" id="btnSalir">Cerrar sesión</button>
+      <p class="mute">Tu progreso se guarda en este dispositivo. Al salir, tu cuenta sigue guardada.</p></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ PANEL DE ADMINISTRADOR ============ -->
+<div id="admin" class="oculto">
+  <div class="fila"><h1>Administración</h1><button class="sec" id="volver" type="button">Volver al juego</button></div>
+  <div id="admBody"></div>
+  <div class="mute" id="admMsg" role="status" style="margin-top:10px"></div>
+</div>
+
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+(function(){
+var CFG={recNivel:0,topeDia:0.20,fondo:500,minRetiro:1,luzNivel:100,cant:9,probOro:15,valor:1,valorOro:5,radio:26,anuncio:"",depMonto:0.1,minDep:1,swapLuz:20000,swapMin:1000,frascoPrecio:5,frascoDias:30,frascoUsdt:1,frascoMax:10,refRegistro:1000,refPct:10,refPremium:5000,comboMax:3,comboVentana:2200,comboPaso:5,bonoDia:3000,probHuid:8,probGig:3,huidN:1,huidB:2,gigN:3,gigB:9,gigToques:3,huevo:400,eqMeta:5000,eqPremio:500,eqMax:10,regMax:200,regDia:3,regRecDia:600,depDir:"0xBA8eC1bAC501b00f85185dc266Def4e67Fd90438"};
+CFG.joyaCada=180;CFG.joyaVida=16;CFG.joyaMult=1;
+var DBK="luciernaga_db_v2",SESK="luciernaga_sesion_v2";
+var TIENDA=[
+ {id:"tap",nombre:"Red grande",desc:"Atrapas luciérnagas desde más lejos",base:30},
+ {id:"auto",nombre:"Auto-recolector",desc:"+1 luz por segundo",base:60},
+ {id:"tema",nombre:"Tema Alba",desc:"Cambia el aspecto (solo estético)",base:100,unico:true}
+];
+var S=null;
+function frascos(){var n=Date.now();S.fr=(S.fr||[]).filter(function(f){return f.fin>n});return S.fr}
+var PL=[
+ {id:"p1",nombre:"Frasco premium",ac:"#f2b134"},
+ {id:"p2",nombre:"Frasco de cobre",precio:10,dias:30,usdt:2,ac:"#e08a4a"},
+ {id:"p3",nombre:"Frasco de plata",precio:20,dias:45,usdt:4,ac:"#c3cfe0"},
+ {id:"p4",nombre:"Frasco de oro",precio:35,dias:45,usdt:7,ac:"#ffd05a"},
+ {id:"p5",nombre:"Frasco de jade",precio:50,dias:60,usdt:10,ac:"#6fd9a0"},
+ {id:"p6",nombre:"Frasco de ámbar",precio:75,dias:60,usdt:15,ac:"#ff9f43"},
+ {id:"p7",nombre:"Frasco de zafiro",precio:100,dias:90,usdt:20,ac:"#5b9bff"},
+ {id:"p8",nombre:"Frasco de rubí",precio:150,dias:90,usdt:30,ac:"#ff6b81"},
+ {id:"p9",nombre:"Frasco de esmeralda",precio:250,dias:120,usdt:50,ac:"#2ee59d"},
+ {id:"p10",nombre:"Frasco de diamante",precio:500,dias:180,usdt:100,ac:"#8ee8ff"}
+];
+function PLANS(){return PL.map(function(p,i){var o=(CFG.planes||[])[i]||{};
+ if(i===0)return{id:p.id,nombre:p.nombre,ac:p.ac,precio:CFG.frascoPrecio,dias:CFG.frascoDias,usdt:CFG.frascoUsdt};
+ return{id:p.id,nombre:p.nombre,ac:p.ac,precio:o.precio>0?o.precio:p.precio,dias:o.dias>0?o.dias:p.dias,usdt:o.usdt>0?o.usdt:p.usdt}})}
+function nPlan(id){return frascos().filter(function(f){return(f.p||"p1")===id}).length}
+function topeJ(){return S?r2(CFG.topeDia+frascos().reduce(function(a,f){return a+(f.u!=null?f.u:CFG.frascoUsdt)},0)):CFG.topeDia}
+var LUZ='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>';
+var IC='fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 48 48" aria-hidden="true"';
+var ICONOS={
+ tap:'<svg '+IC+'><circle cx="20" cy="20" r="12"/><path d="M8 20h24M20 8v24M11.5 11.5l17 17M28.5 11.5l-17 17" stroke-width="1.2" opacity=".6"/><path d="M29 29l13 13" stroke-width="3.2"/></svg>',
+ auto:'<svg '+IC+'><path d="M17 8h14M18 8v5M30 8v5M14 13h20v26a4 4 0 0 1-4 4H18a4 4 0 0 1-4-4z"/><circle cx="21" cy="26" r="2" fill="currentColor"/><circle cx="29" cy="32" r="2" fill="currentColor"/><circle cx="25" cy="20" r="1.6" fill="currentColor"/></svg>',
+ tema:'<svg '+IC+'><path d="M6 34h36M13 34a11 11 0 0 1 22 0M24 11v6M9 21l4 4M39 21l-4 4M4 41h40" /></svg>',
+ lock:'<svg '+IC+'><rect x="11" y="21" width="26" height="20" rx="4"/><path d="M17 21v-5a7 7 0 0 1 14 0v5"/><circle cx="24" cy="31" r="2.4" fill="currentColor"/></svg>'
+};
+var ACENTO={tap:"#4fd1c5",auto:"#f2b134",tema:"#ff9ec4"};
+function efecto(t){var n=S.it[t.id];
+  if(t.id==="auto")return "Ahora +"+n+" luz/s → +"+(n+1)+" luz/s";
+  if(t.unico)return n?"Tema activo":"Solo cambia el aspecto";
+  return "Nivel "+n+" → "+(n+1)}
+function tarjeta(t){
+  var c=costo(t),n=S.it[t.id],hecho=t.unico&&n,ac=ACENTO[t.id]||"#b9a6e8",pips="",k;
+  if(!t.unico){for(k=0;k<10;k++)pips+='<i'+(k<Math.min(n,10)?' class="on"':'')+'></i>'}
+  return '<div class="cart tex" style="--ac:'+ac+'"><div class="cart-ic">'+(ICONOS[t.id]||ICONOS.tap)+'</div>'+
+   '<div><div class="cart-n"><b>'+esc(t.nombre)+'</b>'+(t.unico?'':'<span class="cart-lv">Nv '+n+'</span>')+'</div><div class="mute">'+esc(t.desc)+'</div>'+
+   (t.unico?'':'<div class="pips" aria-hidden="true">'+pips+'</div>')+'<div class="cart-ef">'+efecto(t)+'</div></div>'+
+   '<button class="buy'+(hecho?' hecho':'')+'" data-id="'+t.id+'"'+((hecho||S.luz<c)?' disabled':'')+'>'+(hecho?'✓ Comprado':LUZ+' '+c+' luz')+'</button></div>';
+}
+function aplicar(d){var c=d.cfg||{},k;for(k in c)CFG[k]=c[k];(d.tienda||[]).forEach(function(o,i){if(TIENDA[i]){TIENDA[i].nombre=o.nombre;TIENDA[i].desc=o.desc;TIENDA[i].base=o.base}})}
+function $(i){return document.getElementById(i)}
+function hoyStr(){return new Date().toISOString().slice(0,10)}
+function f2(n){return n.toFixed(2)}
+function r2(n){return Math.round(n*100)/100}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function fch(i){try{return new Date(i).toLocaleString("es",{dateStyle:"short",timeStyle:"short"})}catch(e){return "-"}}
+
+/* ---------- Datos: todo pasa por aquí. Para un servidor real, se cambia solo este bloque. ---------- */
+var Datos={
+ leer:function(){try{var r=JSON.parse(localStorage.getItem(DBK));if(r&&r.jugadores)return r}catch(e){}return{fondo:CFG.fondo,jugadores:{},retiros:[],admin:null}},
+ guardar:function(d){try{localStorage.setItem(DBK,JSON.stringify(d))}catch(e){}}
+};
+function nuevo(n){var h=new Date().toISOString();return{id:"j"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),alias:n,creado:h,visto:h,luz:0,luzNivel:0,luzTot:0,nivel:1,cred:0,usdt:0,atr:0,dia:hoyStr(),hoy:0,it:{tap:0,auto:0,tema:0}}}
+function guardar(){var d=Datos.leer();if(S){S.visto=new Date().toISOString();d.jugadores[S.id]=S}Datos.guardar(d)}
+function costo(t){return t.unico?t.base:Math.round(t.base*Math.pow(1.6,S.it[t.id]))}
+function msg(t){$("msg").textContent=t}
+
+/* ---------- Sonido (sintetizado, sin archivos) ---------- */
+var Snd=(function(){
+  var ctx=null,out=null,ambG=null,noiseBuf=null,ambNodes=null,ambT=null,ambWanted=false,last={},
+      cfg={mute:false,fx:true,amb:true,vib:true,vol:.7};
+  try{var c0=JSON.parse(localStorage.getItem("luc_snd"));if(c0)for(var k0 in c0)cfg[k0]=c0[k0]}catch(e){}
+  function save(){try{localStorage.setItem("luc_snd",JSON.stringify(cfg))}catch(e){}}
+  function init(){
+    if(ctx){if(ctx.state==="suspended"&&!cfg.mute)try{ctx.resume()}catch(e){}return ctx}
+    var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+    try{ctx=new AC()}catch(e){return null}
+    out=ctx.createGain();out.gain.value=cfg.mute?0:cfg.vol;
+    var comp=ctx.createDynamicsCompressor();out.connect(comp);comp.connect(ctx.destination);
+    ambG=ctx.createGain();ambG.gain.value=0;ambG.connect(out);
+    var n=ctx.sampleRate,b=ctx.createBuffer(1,n,ctx.sampleRate),d=b.getChannelData(0),i;
+    for(i=0;i<n;i++)d[i]=Math.random()*2-1;noiseBuf=b;
+    return ctx;
+  }
+  function t(f,dur,o){
+    o=o||{};var at=ctx.currentTime+(o.d||0),osc=ctx.createOscillator(),g=ctx.createGain(),v=o.v||.2;
+    osc.type=o.type||"sine";osc.frequency.setValueAtTime(f,at);
+    if(o.to)osc.frequency.exponentialRampToValueAtTime(o.to,at+dur);
+    g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(v,at+(o.a||.008));g.gain.exponentialRampToValueAtTime(.0001,at+dur);
+    osc.connect(g);g.connect(o.dest||out);osc.start(at);osc.stop(at+dur+.05);
+  }
+  function nz(dur,o){
+    o=o||{};var at=ctx.currentTime+(o.d||0),s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    s.buffer=noiseBuf;s.loop=true;f.type="bandpass";f.Q.value=o.q||1.2;
+    f.frequency.setValueAtTime(o.f1||400,at);f.frequency.exponentialRampToValueAtTime(o.f2||2000,at+dur);
+    g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(o.v||.1,at+dur*.3);g.gain.exponentialRampToValueAtTime(.0001,at+dur);
+    s.connect(f);f.connect(g);g.connect(out);s.start(at);s.stop(at+dur+.05);
+  }
+  function seq(notes,step,dur,o){notes.forEach(function(f,i){var q={};for(var k in o)q[k]=o[k];q.d=i*step+(o.d||0);t(f,dur,q)})}
+  var BANK={
+    atrapa:function(){var r=1+(Math.random()-.5)*.14;t(880*r,.18,{v:.15});t(1320*r,.22,{v:.1,d:.05});t(2640*r,.12,{type:"triangle",v:.035,d:.07})},
+    oro:function(){seq([1046.5,1318.5,1568,2093,2637],.06,.32,{type:"triangle",v:.13});seq([2093,2637,3136],.06,.2,{v:.04,d:.05})},
+    nivel:function(){seq([523.25,659.25,783.99,1046.5],.1,.5,{type:"triangle",v:.15});[1046.5,1318.5,1568].forEach(function(f){t(f,1,{type:"triangle",v:.09,d:.45})});nz(.9,{f1:1500,f2:6000,v:.05,d:.4})},
+    limite:function(){t(440,.25,{v:.13,to:330});t(330,.45,{v:.13,d:.18,to:220})},
+    click:function(){t(700,.05,{type:"square",v:.035})},
+    nav:function(){t(520,.07,{v:.08});t(780,.09,{v:.07,d:.05})},
+    abre:function(){nz(.28,{f1:300,f2:2400,v:.1})},
+    cierra:function(){nz(.22,{f1:2200,f2:300,v:.08})},
+    compra:function(){t(988,.1,{type:"square",v:.06});t(1319,.35,{type:"square",v:.06,d:.09});t(2637,.3,{v:.04,d:.1})},
+    error:function(){t(220,.22,{type:"sawtooth",v:.06,to:180});t(165,.32,{type:"sawtooth",v:.06,d:.16,to:130})},
+    swap:function(){seq([1319,1568,1760,2093,1760,2637],.055,.18,{type:"triangle",v:.1});nz(.4,{f1:3000,f2:7000,v:.04})},
+    premium:function(){seq([523.25,659.25,783.99,1046.5,1318.5],.09,.6,{type:"triangle",v:.14});[1046.5,1318.5,1568,2093].forEach(function(f){t(f,1.3,{type:"triangle",v:.07,d:.5})});nz(1.1,{f1:1500,f2:7000,v:.06,d:.4})},
+    enviado:function(){t(659.25,.16,{type:"triangle",v:.12});t(880,.16,{type:"triangle",v:.12,d:.12});t(1318.5,.45,{type:"triangle",v:.13,d:.24})},
+    scan:function(){t(300,.9,{v:.07,to:1400});nz(.9,{f1:800,f2:4200,v:.05})},
+    listo:function(){t(1318.5,.12,{type:"triangle",v:.12});t(1760,.4,{type:"triangle",v:.12,d:.1})},
+    copia:function(){t(1200,.06,{v:.08});t(1600,.09,{v:.07,d:.05})},
+    bienvenida:function(){seq([659.25,783.99,987.77,1318.5],.11,.4,{type:"triangle",v:.12})},
+    adios:function(){seq([783.99,659.25,523.25],.13,.45,{type:"triangle",v:.1})},
+    ok:function(){t(784,.12,{type:"triangle",v:.12});t(1175,.3,{type:"triangle",v:.12,d:.09})},
+    combo:function(){var k=Math.min(8,Math.floor(comboN/5)),b=660*Math.pow(1.122,k);seq([b,b*1.25,b*1.5],.06,.25,{type:"triangle",v:.1})},
+    rompe:function(){t(300,.25,{v:.05,to:180})},
+    poder:function(){t(300,.5,{type:"sawtooth",v:.05,to:1200});seq([784,1175,1568],.08,.35,{type:"triangle",v:.1,d:.2})},
+    golpe:function(){t(180,.12,{type:"square",v:.07,to:90});t(900,.08,{v:.06})},
+    tick:function(){t(1700,.03,{type:"square",v:.035})},
+    huevo:function(){seq([392,523.25,659.25,783.99,1046.5],.09,.4,{type:"triangle",v:.12});nz(.5,{f1:2000,f2:6000,v:.05,d:.3})},
+    regalo:function(){seq([880,1108.7,1318.5,1760],.08,.3,{type:"triangle",v:.1})},
+    equipo:function(){seq([523.25,659.25,783.99],.09,.35,{type:"triangle",v:.12});t(1046.5,.7,{type:"triangle",v:.1,d:.3})},
+    rara:function(){t(300,1,{v:.06,to:1800});seq([1318.5,1864.7,2637,1864.7,1318.5,1864.7,2637,3729],.1,.5,{type:"sine",v:.09,d:.15});seq([1320,1868,2640],.1,.5,{type:"triangle",v:.03,d:.17});nz(1,{f1:3000,f2:9000,v:.04,d:.2})},
+    rara_atrapa:function(){seq([523.25,659.25,783.99,1046.5,1318.5,1568,2093,2637],.07,.6,{type:"triangle",v:.13});[1046.5,1318.5,1568,2093].forEach(function(f){t(f,1.8,{type:"triangle",v:.07,d:.55})});t(200,.6,{v:.08,to:900});nz(1.2,{f1:1500,f2:8000,v:.07,d:.4})}
+  };
+  var V={rara:[60,60,60],rara_atrapa:[30,40,30,40,120],atrapa:8,oro:[12,30,12],nivel:[30,40,30,40,70],error:[40,30,40],compra:15,premium:[20,30,40,30,60],enviado:[20,40,20]};
+  function play(n){
+    if(cfg.mute)return;
+    if(V[n]&&cfg.vib&&navigator.vibrate){try{navigator.vibrate(V[n])}catch(e){}}
+    if(!cfg.fx||!BANK[n])return;
+    var now=Date.now();if(now-(last[n]||0)<((n==="atrapa"||n==="oro")?30:60))return;last[n]=now;
+    if(!init())return;
+    try{BANK[n]()}catch(e){}
+  }
+  function chirp(){
+    if(!ambNodes)return;
+    var f=4100+Math.random()*500,n=3+Math.floor(Math.random()*3),i;
+    for(i=0;i<n;i++)t(f,.035,{v:.018*(.6+Math.random()*.6),d:i*.055,a:.004,dest:ambG});
+    ambT=setTimeout(chirp,700+Math.random()*2600);
+  }
+  function ambStart(){
+    if(ambNodes||!init())return;
+    var srcs=[],pad=ctx.createGain(),lp=ctx.createBiquadFilter(),lfo=ctx.createOscillator(),lg=ctx.createGain(),ns=ctx.createBufferSource(),bp=ctx.createBiquadFilter(),wg=ctx.createGain();
+    pad.gain.value=.05;lp.type="lowpass";lp.frequency.value=600;
+    [110,164.8,220.4].forEach(function(f){var o=ctx.createOscillator();o.type="sine";o.frequency.value=f;o.connect(lp);o.start();srcs.push(o)});
+    lp.connect(pad);pad.connect(ambG);
+    lfo.frequency.value=.1;lg.gain.value=.025;lfo.connect(lg);lg.connect(pad.gain);lfo.start();srcs.push(lfo);
+    ns.buffer=noiseBuf;ns.loop=true;bp.type="bandpass";bp.frequency.value=350;bp.Q.value=.4;wg.gain.value=.035;
+    ns.connect(bp);bp.connect(wg);wg.connect(ambG);ns.start();srcs.push(ns);
+    ambNodes=srcs;ambG.gain.cancelScheduledValues(ctx.currentTime);ambG.gain.setTargetAtTime(1,ctx.currentTime,.8);
+    ambT=setTimeout(chirp,900);
+  }
+  function ambStop(){
+    if(!ambNodes)return;
+    var n=ambNodes;ambNodes=null;clearTimeout(ambT);
+    try{ambG.gain.cancelScheduledValues(ctx.currentTime);ambG.gain.setTargetAtTime(0,ctx.currentTime,.2)}catch(e){}
+    setTimeout(function(){n.forEach(function(o){try{o.stop()}catch(e){}})},900);
+  }
+  function apply(){
+    if(ctx)out.gain.value=cfg.mute?0:cfg.vol;
+    if(!cfg.mute&&cfg.amb&&ambWanted)ambStart();else ambStop();
+  }
+  document.addEventListener("visibilitychange",function(){if(!ctx)return;try{if(document.hidden)ctx.suspend();else if(!cfg.mute)ctx.resume()}catch(e){}});
+  return{
+    cfg:cfg,play:play,unlock:init,
+    set:function(k,v){cfg[k]=v;save();apply()},
+    ambOn:function(){ambWanted=true;if(!cfg.mute&&cfg.amb)ambStart()},
+    ambOff:function(){ambWanted=false;ambStop()}
+  };
+})();
+var ICO_SND='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor" fill-opacity=".25"/>';
+function pintarSnd(){
+  var c=Snd.cfg,b=$("btnSnd");
+  $("sFx").checked=!!c.fx;$("sAmb").checked=!!c.amb;$("sVib").checked=!!c.vib;$("sVol").value=Math.round(c.vol*100);
+  b.innerHTML=ICO_SND+(c.mute?'<path d="M17 9l5 6M22 9l-5 6"/>':'<path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>')+'</svg>';
+  b.setAttribute("aria-pressed",c.mute?"true":"false");b.setAttribute("aria-label",c.mute?"Activar sonido":"Silenciar sonido");
+}
+["pointerdown","keydown","touchend"].forEach(function(n){document.addEventListener(n,function(){Snd.unlock()},true)});
+document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("button");if(b&&!b.disabled&&!b.classList.contains("op")&&!b.classList.contains("ham")&&b.id!=="btnSnd")Snd.play("click")},true);
+$("btnSnd").onclick=function(){Snd.set("mute",!Snd.cfg.mute);pintarSnd();if(!Snd.cfg.mute)Snd.play("nav")};
+$("sFx").onchange=function(){Snd.set("fx",this.checked);pintarSnd();Snd.play("nav")};
+$("sAmb").onchange=function(){Snd.set("amb",this.checked);pintarSnd()};
+$("sVib").onchange=function(){Snd.set("vib",this.checked);pintarSnd();if(this.checked&&navigator.vibrate)try{navigator.vibrate(30)}catch(e){}};
+$("sVol").oninput=function(){Snd.set("vol",(+this.value)/100)};
+$("sVol").onchange=function(){Snd.play("atrapa")};
+$("sTest").onclick=function(){Snd.play("nivel")};
+pintarSnd();
+
+/* ---------- Referidos ---------- */
+var comAcc=0;
+var ALFA="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function porCod(d,c){c=String(c).toUpperCase();for(var k in d.jugadores)if(d.jugadores[k].cod===c)return d.jugadores[k];return null}
+function unico(d){var c,i;do{c="";for(i=0;i<6;i++)c+=ALFA.charAt(Math.floor(Math.random()*ALFA.length))}while(porCod(d,c));return c}
+function ensureCod(){if(S&&!S.cod)S.cod=unico(Datos.leer())}
+function refs(d,id){return Object.keys(d.jugadores).map(function(k){return d.jugadores[k]}).filter(function(j){return j.ref===id})}
+function flushCom(){
+  if(!S||!S.ref||comAcc<=0)return;
+  var d=Datos.leer(),r=d.jugadores[S.ref];
+  if(r){r.luz+=comAcc;r.luzTot=(r.luzTot||0)+comAcc;r.refCom=(r.refCom||0)+comAcc;S.aport=(S.aport||0)+comAcc;Datos.guardar(d)}
+  comAcc=0;
+}
+function refPremium(){
+  if(!S.ref||S.refPrem)return;
+  var d=Datos.leer(),r=d.jugadores[S.ref];S.refPrem=true;
+  if(r){r.luz+=CFG.refPremium;r.luzTot=(r.luzTot||0)+CFG.refPremium;r.refBonos=(r.refBonos||0)+CFG.refPremium;Datos.guardar(d)}
+}
+setInterval(flushCom,3000);
+window.addEventListener("pagehide",flushCom);
+document.addEventListener("visibilitychange",function(){if(document.hidden)flushCom()});
+function refReg(n,t){return '<div class="ref-reg"><span class="ref-n">'+n+'</span><span>'+t+'</span></div>'}
+function refLink(){return location.href.split(/[?#]/)[0]+"?ref="+S.cod}
+function pintarRef(){
+  flushCom();
+  var d=Datos.leer(),l=refs(d,S.id).sort(function(a,b){return String(b.creado).localeCompare(String(a.creado))}),
+      prem=l.filter(function(j){return j.refPrem}).length,tot=Math.floor((S.refBonos||0)+(S.refCom||0)),h;
+  h='<section class="tienda-hero tex dp-in" style="--i:0"><div><div class="mute">Tu código de referido</div><div class="ref-cod">'+esc(S.cod||"")+'</div></div><p class="mute">Invita amigos con tu código y gana luz por cada uno.</p></section>'+
+   '<div class="btns dp-in" style="--i:1"><button type="button" data-rc="cod">Copiar código</button><button type="button" class="sec" data-rc="link">Copiar enlace</button>'+(navigator.share?'<button type="button" class="sec" data-rc="share">Compartir</button>':'')+'</div>'+
+   '<section class="panel dp-in" style="--i:2"><h2>Cómo ganas</h2>'+
+   refReg("+"+nf(CFG.refRegistro),"luz por cada amigo que se registra con tu código.")+
+   refReg(CFG.refPct+"%","de toda la luz que ganan tus referidos. A ellos no se les descuenta nada.")+
+   refReg("+"+nf(CFG.refPremium),"luz cuando un referido hace un depósito y compra su primer frasco premium.")+'</section>'+
+   '<section class="panel dp-in" style="--i:3"><div class="cifras"><div><b>'+l.length+'</b><span>referidos</span></div><div><b>'+prem+'</b><span>premium</span></div><div><b>'+nf(tot)+'</b><span>luz ganada</span></div></div></section>'+
+   '<section class="panel dp-in" style="--i:4"><h2>Tus referidos</h2>'+(l.length?l.map(function(j){
+     return '<div class="item fila"><span><b>'+esc(j.alias)+'</b><div class="mute">Nivel '+j.nivel+' · '+fch(j.creado)+'</div></span><span style="text-align:right"><div class="'+(j.refPrem?"ok":"mute")+'">'+(j.refPrem?"Premium ✓":"Registrado")+'</div><div class="mute">+'+nf(j.aport||0)+' luz</div></span></div>'}).join(""):'<p class="mute" style="margin:0">Todavía no tienes referidos. Comparte tu código para empezar.</p>')+'</section>';
+  $("refPanel").innerHTML=h;
+}
+$("refPanel").onclick=function(e){
+  var b=e.target.closest?e.target.closest("[data-rc]"):null,a=b&&b.getAttribute("data-rc");
+  if(!a||!S)return;
+  if(a==="share"){if(navigator.share)navigator.share({title:"Luciérnaga",text:"Juega Luciérnaga con mi código "+S.cod,url:refLink()}).catch(function(){});return}
+  var txt=a==="cod"?S.cod:refLink(),orig=b.textContent;
+  function ok(){Snd.play("copia");b.textContent="Copiado ✓";setTimeout(function(){b.textContent=orig},2000)}
+  function fall(){var t=document.createElement("textarea");t.value=txt;document.body.appendChild(t);t.select();try{document.execCommand("copy");ok()}catch(x){b.textContent="Copia a mano"}document.body.removeChild(t)}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(ok,fall);else fall();
+};
+
+/* ---------- Dinámicas: combos, poderes, mascotas, ruleta, equipos ---------- */
+var comboN=0,comboT=0,eqBon=0,petImgs={},petPos=null,mascMsg="",rulFin=0;
+var PODS=[
+ {id:"iman",nombre:"Imán de luz",corto:"Imán",desc:"Las luciérnagas se acercan a tu dedo.",costo:120,seg:20,ac:"#b48cff"},
+ {id:"red",nombre:"Red gigante",corto:"Red",desc:"Tu radio de captura crece x1,8.",costo:150,seg:15,ac:"#4fd1c5"},
+ {id:"doble",nombre:"Doble luz",corto:"Doble",desc:"Cada captura da luz de bono extra.",costo:200,seg:25,ac:"#ffd05a"}
+];
+var PODICO={iman:'<svg '+IC+'><path d="M12 8v14a12 12 0 0 0 24 0V8h-8v14a4 4 0 0 1-8 0V8z"/><path d="M12 14h8M28 14h8"/></svg>',red:ICONOS.tap,doble:'<svg '+IC+'><path d="M24 6l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/></svg>'};
+function pod(k){return !!(S&&S.pod&&S.pod[k]>Date.now())}
+function gastar(c){S.luz-=c;S.bonoLuz=Math.max(0,(S.bonoLuz||0)-c)}
+function luzCambiable(){var b=Math.min(S.bonoLuz||0,S.luz);return Math.max(0,Math.floor(S.luz-b))}
+function semKey(){var d=new Date(),s0=new Date(d.getFullYear(),0,1);return d.getFullYear()+"-"+Math.floor(((d-s0)/864e5+s0.getDay())/7)}
+function semAdd(n){var k=semKey();if(!S.sem||S.sem.w!==k)S.sem={w:k,luz:0};S.sem.luz+=n}
+function ensureX(){
+  if(!S)return;
+  if(S.bonoLuz==null)S.bonoLuz=0;if(S.bonoHoy==null)S.bonoHoy=0;if(!S.pod)S.pod={};if(!S.pets)S.pets=[];
+  if(S.pet==null)S.pet=-1;if(S.eq===undefined)S.eq=null;if(S.bonoLuz>S.luz)S.bonoLuz=Math.max(0,S.luz);
+}
+function darBono(x){
+  if(!(x>0))return 0;
+  var h=hoyStr();if(S.bonoDiaStr!==h){S.bonoDiaStr=h;S.bonoHoy=0}
+  var ok=Math.round(Math.max(0,Math.min(x,CFG.bonoDia-(S.bonoHoy||0)))*100)/100;
+  if(ok<=0)return 0;
+  S.luz+=ok;S.bonoLuz=(S.bonoLuz||0)+ok;S.bonoHoy=(S.bonoHoy||0)+ok;return ok;
+}
+function comboMult(){return Math.max(1,Math.min(CFG.comboMax,1+Math.floor(comboN/Math.max(1,CFG.comboPaso))*.5))}
+function podsHtml(){
+  var h='<div class="sec-t">Poderes temporales</div>';
+  PODS.forEach(function(p){
+    var on=pod(p.id);
+    h+='<div class="cart tex" style="--ac:'+p.ac+'"><div class="cart-ic">'+PODICO[p.id]+'</div><div><div class="cart-n"><b>'+esc(p.nombre)+'</b>'+(on?'<span class="cart-lv">Activo</span>':'')+'</div><div class="mute">'+p.desc+'</div><div class="cart-ef">Dura '+p.seg+' s. Si lo compras activo, se suma el tiempo.</div></div>'+
+     '<button class="buy" data-pod="'+p.id+'"'+(S.luz<p.costo?' disabled':'')+'>'+LUZ+' '+p.costo+' luz</button></div>';
+  });
+  return h;
+}
+function comprarPod(id){
+  var p=PODS.filter(function(x){return x.id===id})[0];
+  if(!p||S.luz<p.costo)return;
+  gastar(p.costo);var n=Date.now();
+  S.pod[id]=Math.min(n+120000,Math.max(n,S.pod[id]||0)+p.seg*1000);
+  Snd.play("poder");pintar();
+}
+/* mascotas */
+var PETS=[
+ {id:"chispa",nombre:"Chispa",desc:"Una luciérnaga bebé que potencia tus capturas.",ac:"#b6f36a"},
+ {id:"polilla",nombre:"Polilla lunar",desc:"Te ayuda a alcanzar más lejos.",ac:"#b48cff"},
+ {id:"buho",nombre:"Búho nocturno",desc:"Alarga el tiempo para mantener el combo.",ac:"#ffb454"},
+ {id:"grillo",nombre:"Grillo cantor",desc:"Canta y te regala luz de bono con el tiempo.",ac:"#5bc0ff"}
+];
+function petById(id){return PETS.filter(function(x){return x.id===id})[0]}
+function petAct(){return S&&S.pets&&S.pets[S.pet]||null}
+function petChispa(){var a=petAct();return a&&a.t==="chispa"?.04*a.lv:0}
+function petPolilla(){var a=petAct();return a&&a.t==="polilla"?3*a.lv:0}
+function petBuho(){var a=petAct();return a&&a.t==="buho"?150*a.lv:0}
+function petGrillo(){var a=petAct();return a&&a.t==="grillo"?.1*a.lv:0}
+function efectoPet(id,lv){
+  return id==="chispa"?"+"+(4*lv)+"% de luz de bono por captura":id==="polilla"?"+"+(3*lv)+" px de radio de captura":id==="buho"?"+"+(0.15*lv).toFixed(2)+" s de ventana de combo":"+"+(0.1*lv).toFixed(1)+" luz de bono por segundo";
+}
+function carasPet(id){
+ var f=function(v){return +v.toFixed(2)};
+ function cara(x,y,r,fc){return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+fc+'"/>'+[-1,1].map(function(q){return '<ellipse cx="'+f(x+q*r*.4)+'" cy="'+f(y)+'" rx="'+f(r*.17)+'" ry="'+f(r*.23)+'" fill="#2a1838"/><circle cx="'+f(x+q*r*.4-r*.05)+'" cy="'+f(y-r*.09)+'" r="'+f(r*.07)+'" fill="#fff"/><ellipse cx="'+f(x+q*r*.66)+'" cy="'+f(y+r*.3)+'" rx="'+f(r*.17)+'" ry="'+f(r*.1)+'" fill="#ff8aa8" opacity=".6"/>'}).join("")+'<path d="M'+f(x-r*.16)+' '+f(y+r*.32)+'q'+f(r*.16)+' '+f(r*.2)+' '+f(r*.32)+' 0" stroke="#7a3b3b" stroke-width=".9" fill="none" stroke-linecap="round"/>'}
+ return id==="chispa"?cara(24,14,7,"#ffe9b8"):id==="polilla"?cara(24,15,6.5,"#f3e8ff"):id==="grillo"?cara(24,14,7,"#c9f1ff"):"";
+}
+function petSvg(id,sz){
+  var o='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="'+sz+'" height="'+sz+'" aria-hidden="true">',x="";
+  if(id==="chispa")x='<defs><radialGradient id="pcA"><stop offset="0" stop-color="#fffbd0"/><stop offset=".5" stop-color="#b6f36a"/><stop offset="1" stop-color="#b6f36a" stop-opacity="0"/></radialGradient></defs><circle cx="24" cy="29" r="16" fill="url(#pcA)" opacity=".8"/><ellipse cx="15" cy="20" rx="8" ry="4" transform="rotate(-30 15 20)" fill="#e8f4ff" fill-opacity=".6" stroke="#fff" stroke-opacity=".7" stroke-width=".6"/><ellipse cx="33" cy="20" rx="8" ry="4" transform="rotate(30 33 20)" fill="#e8f4ff" fill-opacity=".6" stroke="#fff" stroke-opacity=".7" stroke-width=".6"/><ellipse cx="24" cy="24" rx="6" ry="10" fill="#3a2a22"/><ellipse cx="24" cy="31" rx="5" ry="6" fill="url(#pcA)"/><circle cx="24" cy="32" r="2.6" fill="#fffdea"/><circle cx="24" cy="13" r="4.6" fill="#3a2a22"/><circle cx="22.2" cy="12.4" r="1.3" fill="#fff"/><circle cx="25.8" cy="12.4" r="1.3" fill="#fff"/><path d="M22 9.5C20.5 6.500 18 6 16.500 6.500M26 9.5C27.500 6.500 30 6 31.500 6.500" stroke="#3a2a22" stroke-width="1.3" fill="none" stroke-linecap="round"/>';
+  else if(id==="polilla")x='<defs><linearGradient id="ppA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6d6ff"/><stop offset="1" stop-color="#8a5ae0"/></linearGradient></defs><path d="M24 24C14 6 2 10 4 23C5 33 15 37 24 29z" fill="url(#ppA)" stroke="#f3e8ff" stroke-width="1"/><path d="M24 24C34 6 46 10 44 23C43 33 33 37 24 29z" fill="url(#ppA)" stroke="#f3e8ff" stroke-width="1"/><circle cx="12" cy="21" r="3.200" fill="#fff" opacity=".55"/><circle cx="36" cy="21" r="3.200" fill="#fff" opacity=".55"/><circle cx="14" cy="29" r="1.800" fill="#fff" opacity=".45"/><circle cx="34" cy="29" r="1.800" fill="#fff" opacity=".45"/><ellipse cx="24" cy="27" rx="3.200" ry="10" fill="#5a3f8a"/><circle cx="24" cy="15" r="3.200" fill="#5a3f8a"/><path d="M22.500 13C20 9 17 8.500 15 9.500M25.500 13C28 9 31 8.500 33 9.500" stroke="#f3e8ff" stroke-width="1.300" fill="none" stroke-linecap="round"/>';
+  else if(id==="buho")x='<defs><linearGradient id="pbA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c58a4e"/><stop offset="1" stop-color="#6a3f1c"/></linearGradient></defs><path d="M12 16l-3-9 9 4zM36 16l3-9-9 4z" fill="#8a5a2e"/><ellipse cx="24" cy="28" rx="14" ry="15.500" fill="url(#pbA)" stroke="#e8c79a" stroke-width="1"/><ellipse cx="24" cy="34" rx="8" ry="9" fill="#f1d5a8"/><path d="M19 32q2 2 0 4M24 31q2 2 0 4M29 32q2 2 0 4" stroke="#b98a55" stroke-width="1" fill="none"/><circle cx="17.500" cy="21.500" r="6" fill="#fff6dd" stroke="#ffb454" stroke-width="1.500"/><circle cx="30.500" cy="21.500" r="6" fill="#fff6dd" stroke="#ffb454" stroke-width="1.500"/><circle cx="18" cy="22" r="2.800" fill="#1a1210"/><circle cx="30" cy="22" r="2.800" fill="#1a1210"/><circle cx="19" cy="21" r=".9" fill="#fff"/><circle cx="31" cy="21" r=".9" fill="#fff"/><path d="M24 25l-3 4.500h6z" fill="#ffb454"/><path d="M19 43l-1 3M23 44v3M29 43l1 3" stroke="#ffb454" stroke-width="1.600" stroke-linecap="round"/>';
+  else if(id==="grillo")x='<defs><linearGradient id="pgA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fe8ff"/><stop offset="1" stop-color="#2f8fc9"/></linearGradient></defs><path d="M17 26L8 36l3 8M31 26l9 10-3 8" stroke="#2f8fc9" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 30l-6-4M33 30l6-4" stroke="#2f8fc9" stroke-width="2.200" fill="none" stroke-linecap="round"/><ellipse cx="24" cy="29" rx="9" ry="13" fill="url(#pgA)" stroke="#d6f4ff" stroke-width="1"/><path d="M19 24h10M18.500 29h11M19.500 34h9" stroke="#fff" stroke-opacity=".45" stroke-width="1.200"/><circle cx="24" cy="14" r="5.500" fill="url(#pgA)" stroke="#d6f4ff" stroke-width="1"/><circle cx="21.800" cy="13" r="1.600" fill="#1a1210"/><circle cx="26.200" cy="13" r="1.600" fill="#1a1210"/><path d="M21 9.500C18 5 13 4 10 6M27 9.500C30 5 35 4 38 6" stroke="#d6f4ff" stroke-width="1.300" fill="none" stroke-linecap="round"/>';
+  else x='<defs><linearGradient id="peA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0c8"/><stop offset="1" stop-color="#e0a64a"/></linearGradient></defs><path d="M24 4C14 4 8 19 8 30a16 16 0 0 0 32 0C40 19 34 4 24 4z" fill="url(#peA)" stroke="#fff6dd" stroke-width="1.200"/><circle cx="19" cy="22" r="3" fill="#c97a00" opacity=".45"/><circle cx="29" cy="30" r="3.600" fill="#c97a00" opacity=".45"/><circle cx="18" cy="35" r="2.200" fill="#c97a00" opacity=".45"/><ellipse cx="18" cy="15" rx="3" ry="5" transform="rotate(20 18 15)" fill="#fff" opacity=".5"/><path d="M38 6l1.300 3.200 3.200 1.300-3.200 1.300L38 15l-1.300-3.200-3.200-1.300 3.200-1.300z" fill="#fff6c7"/>';
+  x+=carasPet(id);return o+x.replace(/(\d)\.(\d)00(?!\d)/g,"$1.$2")+'</svg>';
+}
+function petImg(id){if(!petImgs[id]){var im=new Image();im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(petSvg(id,96));petImgs[id]=im}return petImgs[id]}
+function drawPet(now){
+  var a=petAct();if(!a||!W)return;
+  var im=petImg(a.t);if(!im.complete||!im.naturalWidth)return;
+  var tx=dedo?dedo[0]-46:W*.12,ty=dedo?dedo[1]+34:H*.8;
+  if(!petPos)petPos=[tx,ty];
+  petPos[0]+=(tx-petPos[0])*.06;petPos[1]+=(ty-petPos[1])*.06;
+  var bob=Math.sin(now/380)*4,sz=44+a.lv*1.5;
+  cx.globalAlpha=.5;cx.globalCompositeOperation="lighter";cx.drawImage(SPR.l,petPos[0]-sz,petPos[1]+bob-sz,sz*2,sz*2);
+  cx.globalCompositeOperation="source-over";cx.globalAlpha=1;cx.drawImage(im,petPos[0]-sz/2,petPos[1]+bob-sz/2,sz,sz);
+}
+function rrect(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath()}
+function hud(){
+  var now=Date.now(),win=CFG.comboVentana+petBuho();
+  if(comboN>0&&now-comboT>win){comboN=0;Snd.play("rompe")}
+  cx.save();cx.globalCompositeOperation="source-over";cx.globalAlpha=1;cx.textAlign="center";
+  if(comboN>=2){
+    var rest=Math.max(0,1-(now-comboT)/win),m=comboMult();
+    cx.font="800 24px Figtree,system-ui,sans-serif";cx.fillStyle="#ffd05a";cx.shadowColor="rgba(255,200,70,.9)";cx.shadowBlur=12;cx.fillText("COMBO "+comboN,W/2,34);cx.shadowBlur=0;
+    cx.font="700 13px Figtree,system-ui,sans-serif";cx.fillStyle="#f6efe3";cx.fillText("bono x"+m.toFixed(1),W/2,52);
+    cx.fillStyle="rgba(255,255,255,.18)";cx.fillRect(W/2-50,58,100,4);cx.fillStyle="#ffd05a";cx.fillRect(W/2-50,58,100*rest,4);
+  }
+  var y=12;cx.textAlign="left";cx.font="700 12px Figtree,system-ui,sans-serif";
+  PODS.forEach(function(p){
+    var e=S.pod&&S.pod[p.id];
+    if(e>now){var txt=p.corto+" "+Math.ceil((e-now)/1000)+"s",w=cx.measureText(txt).width+20;
+      cx.fillStyle="rgba(10,10,36,.7)";rrect(10,y,w,22,11);cx.fill();cx.strokeStyle=p.ac;cx.lineWidth=1.2;cx.stroke();cx.fillStyle=p.ac;cx.fillText(txt,20,y+15);y+=28}
+  });
+  drawPet(now);
+  cx.restore();
+}
+function petPanelHero(){
+  var a=petAct();
+  return '<section class="tienda-hero tex dp-in" style="--i:0"><div style="display:flex;align-items:center;gap:12px"><div class="pet-grande">'+(a?petSvg(a.t,64):petSvg("huevo",64))+'</div><div><div class="mute">Mascota activa</div><div class="hero-n" style="font-size:1.4rem">'+(a?esc(petById(a.t).nombre)+' · Nv '+a.lv:'Ninguna')+'</div></div></div><p class="mute">Dan bonos pequeños. Solo suman luz de bono, nunca USDT directo.</p></section>';
+}
+function eclosionar(gratis){
+  if(!gratis){if(S.luz<CFG.huevo)return "No tienes suficiente luz para el huevo.";gastar(CFG.huevo)}
+  var p=PETS[Math.floor(Math.random()*PETS.length)],ex=S.pets.filter(function(m){return m.t===p.id})[0],msg;
+  if(ex){if(ex.lv<10){ex.lv++;msg="¡Salió "+p.nombre+" repetida! Sube a nivel "+ex.lv+"."}else msg="¡Salió "+p.nombre+" repetida! Ya está al nivel máximo."}
+  else{S.pets.push({t:p.id,lv:1});if(S.pet<0)S.pet=0;msg="¡Nueva mascota: "+p.nombre+"!"}
+  Snd.play("huevo");return msg;
+}
+function pintarMasc(){
+  var h=petPanelHero(),k;
+  h+='<div class="cart tex dp-in" style="--ac:#e0a64a;--i:1"><div class="cart-ic pet-ic">'+petSvg("huevo",48)+'</div><div><div class="cart-n"><b>Huevo misterioso</b></div><div class="mute">Eclosiona una mascota al azar. Si ya la tienes, sube de nivel.</div></div><button class="buy" data-m="huevo"'+(S.luz<CFG.huevo?' disabled':'')+'>'+LUZ+' '+nf(CFG.huevo)+' luz</button></div>';
+  S.pets.forEach(function(m,i){
+    var p=petById(m.t),act=i===S.pet,costo=80*m.lv,pips="";
+    for(k=0;k<10;k++)pips+='<i'+(k<m.lv?' class="on"':'')+'></i>';
+    h+='<div class="cart tex dp-in" style="--ac:'+p.ac+';--i:'+(2+i)+'"><div class="cart-ic pet-ic">'+petSvg(p.id,48)+'</div><div><div class="cart-n"><b>'+esc(p.nombre)+'</b><span class="cart-lv">Nv '+m.lv+'</span>'+(act?'<span class="cart-lv" style="background:var(--ok)">Activa</span>':'')+'</div><div class="mute">'+p.desc+'</div><div class="pips" aria-hidden="true">'+pips+'</div><div class="cart-ef">'+efectoPet(p.id,m.lv)+'</div></div>'+
+     '<div class="btns" style="grid-column:1/-1">'+(act?'':'<button type="button" class="sec" data-m="act" data-i="'+i+'">Activar</button>')+'<button type="button" data-m="up" data-i="'+i+'"'+((m.lv>=10||S.luz<costo)?' disabled':'')+'>'+(m.lv>=10?'Nivel máximo':'Subir · '+nf(costo)+' luz')+'</button></div></div>';
+  });
+  if(!S.pets.length)h+='<p class="mute dp-in" style="--i:2">Todavía no tienes mascotas. Compra un huevo o gana uno en la ruleta.</p>';
+  h+='<div class="mute msgf" id="mascMsg" role="status">'+esc(mascMsg)+'</div>';
+  $("mascPanel").innerHTML=h;
+}
+$("mascPanel").onclick=function(e){
+  var b=e.target.closest?e.target.closest("[data-m]"):null,a=b&&b.getAttribute("data-m"),i=+(b&&b.getAttribute("data-i"));
+  if(!a||!S||b.disabled)return;
+  mascMsg="";
+  if(a==="huevo")mascMsg=eclosionar(false);
+  else if(a==="act"&&S.pets[i]){S.pet=i;Snd.play("nav")}
+  else if(a==="up"&&S.pets[i]){var m=S.pets[i],c=80*m.lv;if(m.lv<10&&S.luz>=c){gastar(c);m.lv++;Snd.play("compra")}}
+  pintar();pintarMasc();
+};
+/* ruleta */
+var PREM=[
+ {e:"50",t:"50 luz de bono",tipo:"luz",v:50,w:28},
+ {e:"100",t:"100 luz de bono",tipo:"luz",v:100,w:24},
+ {e:"200",t:"200 luz de bono",tipo:"luz",v:200,w:14},
+ {e:"Imán",t:"Imán 30 s",tipo:"pod",id:"iman",seg:30,w:9},
+ {e:"Red",t:"Red gigante 30 s",tipo:"pod",id:"red",seg:30,w:9},
+ {e:"Doble",t:"Doble luz 45 s",tipo:"pod",id:"doble",seg:45,w:9},
+ {e:"500",t:"500 luz de bono",tipo:"luz",v:500,w:4},
+ {e:"Huevo",t:"Un huevo de mascota",tipo:"huevo",w:3}
+];
+function ruedaSvg(){
+  var n=PREM.length,cols=["#ff7a7a","#ffb454","#ffd05a","#8fd694","#4fd1c5","#5bc0ff","#b48cff","#ff9ec4"],h='<svg viewBox="0 0 300 300" style="display:block;width:100%;height:auto" aria-hidden="true">',i,r=Math.PI/180;
+  for(i=0;i<n;i++){
+    var a0=(i*360/n-90)*r,a1=((i+1)*360/n-90)*r,am=((i+.5)*360/n-90),mx=150+95*Math.cos(am*r),my=150+95*Math.sin(am*r);
+    h+='<path d="M150 150L'+(150+140*Math.cos(a0)).toFixed(2)+' '+(150+140*Math.sin(a0)).toFixed(2)+'A140 140 0 0 1 '+(150+140*Math.cos(a1)).toFixed(2)+' '+(150+140*Math.sin(a1)).toFixed(2)+'Z" fill="'+cols[i%cols.length]+'" stroke="#2a1838" stroke-width="2"/>'+
+     '<text x="'+mx.toFixed(1)+'" y="'+my.toFixed(1)+'" text-anchor="middle" dominant-baseline="middle" transform="rotate('+(am+90).toFixed(1)+' '+mx.toFixed(1)+' '+my.toFixed(1)+')" font-size="16" font-weight="800" fill="#2a1838" font-family="Figtree,system-ui,sans-serif">'+PREM[i].e+'</text>';
+  }
+  return h+'<circle cx="150" cy="150" r="143" fill="none" stroke="#f2b134" stroke-width="5"/><circle cx="150" cy="150" r="24" fill="#2a1838" stroke="#f2b134" stroke-width="4"/><path d="M150 138l3 7 7 .6-5.400 4.600 1.700 7-6.300-3.800-6.300 3.800 1.700-7-5.400-4.600 7-.6z" fill="#fff6c7"/></svg>'.replace(/(\d)\.(\d)00(?!\d)/g,"$1.$2");
+}
+function pickPrem(){var r=Math.random()*100,a=0,i;for(i=0;i<PREM.length;i++){a+=PREM[i].w;if(r<a)return i}return 0}
+function aplicarPremio(pr){
+  if(pr.tipo==="luz"){S.luz+=pr.v;S.bonoLuz=(S.bonoLuz||0)+pr.v;return pr.t}
+  if(pr.tipo==="pod"){var n=Date.now();S.pod[pr.id]=Math.min(n+120000,Math.max(n,S.pod[pr.id]||0)+pr.seg*1000);return pr.t}
+  return eclosionar(true);
+}
+function pintarRul(){
+  var listo=S.rul!==hoyStr(),ang=(!listo&&S.rulUlt!=null)?-(S.rulUlt*45+22.5):0;
+  $("rulPanel").innerHTML='<section class="panel dp-in" style="--i:0"><h2>Ruleta diaria</h2><p class="mute">Un giro gratis al día. Los premios son luz de bono (sirve en la tienda y mejoras), poderes temporales o un huevo de mascota.</p>'+
+   '<div class="rul-wrap"><div class="rul-puntero"></div><div class="rul-rueda" id="rulRueda" style="transform:rotate('+ang+'deg)">'+ruedaSvg()+'</div></div>'+
+   '<div class="btns"><button type="button" class="dp-grande" id="btnGirar"'+(listo?'':' disabled')+'>'+(listo?"Girar ruleta":"Ya giraste hoy. Vuelve mañana")+'</button></div>'+
+   '<div class="mute msgf" id="rulMsg" role="status">'+(!listo&&S.rulTxt?"Hoy ganaste: "+esc(S.rulTxt):"")+'</div></section>';
+}
+function girar(){
+  if(S.rul===hoyStr())return;
+  var i=pickPrem(),pr=PREM[i];
+  S.rul=hoyStr();S.rulUlt=i;S.rulTxt=pr.t;
+  var txt=aplicarPremio(pr);guardar();
+  var el=$("rulRueda"),T=5000,fin=360*6-(i*45+22.5)+(Math.random()-.5)*26,j;
+  $("btnGirar").disabled=true;$("btnGirar").textContent="Girando…";$("rulMsg").textContent="";
+  void el.offsetWidth;el.style.transition="transform "+T+"ms cubic-bezier(.17,.67,.16,1)";el.style.transform="rotate("+fin+"deg)";
+  for(j=1;j<=Math.floor(fin/45);j++)(function(tt){setTimeout(function(){Snd.play("tick")},tt)})(T*(1-Math.pow(1-(j*45)/fin,1/3)));
+  setTimeout(function(){
+    Snd.play("premium");pintar();
+    if($("btnGirar")){$("btnGirar").textContent="Ya giraste hoy. Vuelve mañana";msgf("rulMsg","¡Ganaste: "+txt+"!",1)}
+  },T+150);
+}
+$("rulPanel").onclick=function(e){if(e.target.id==="btnGirar"&&S)girar()};
+/* equipos y regalos */
+function jugs(d){return Object.keys(d.jugadores).map(function(k){return d.jugadores[k]})}
+function miembros(d,id){return jugs(d).filter(function(j){return j.eq===id&&j.id!==S.id}).concat(S.eq===id?[S]:[])}
+function refreshEq(){
+  if(!S)return;
+  if(!S.eq){eqBon=0;return}
+  var d=Datos.leer(),t=d.equipos&&d.equipos[S.eq];
+  if(!t){S.eq=null;eqBon=0;return}
+  eqBon=.02*Math.min(miembros(d,S.eq).length,CFG.eqMax);
+}
+setInterval(refreshEq,30000);
+function destinatarios(d){
+  var m={};
+  if(S.eq)miembros(d,S.eq).forEach(function(j){m[j.id]=j});
+  refs(d,S.id).forEach(function(j){m[j.id]=j});
+  if(S.ref&&d.jugadores[S.ref])m[S.ref]=d.jugadores[S.ref];
+  delete m[S.id];
+  return Object.keys(m).map(function(k){return m[k]});
+}
+function pintarEq(){
+  var d=Datos.leer(),t=S.eq&&d.equipos&&d.equipos[S.eq],h="",k=semKey(),i;
+  if(S.eq&&!t){S.eq=null}
+  if(!t){
+    h='<section class="tienda-hero tex dp-in" style="--i:0"><div><div class="mute">Equipos</div><div class="hero-n" style="font-size:1.4rem">Juega en grupo</div></div><p class="mute">Cada miembro suma +2% de luz de bono para todos y juntos cumplen una meta semanal.</p></section>'+
+     '<section class="panel dp-in" style="--i:1"><h2>Crear un equipo</h2><label for="eqNom">Nombre (3 a 16 caracteres)</label><input id="eqNom" maxlength="16" autocomplete="off"><div class="btns"><button type="button" data-e="crear">Crear equipo</button></div></section>'+
+     '<section class="panel dp-in" style="--i:2"><h2>Unirme a un equipo</h2><label for="eqCod">Código del equipo</label><input id="eqCod" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false"><div class="btns"><button type="button" class="sec" data-e="unir">Unirme</button></div></section>';
+  }else{
+    var ms=miembros(d,t.id),tot=0,meta=CFG.eqMeta>0?CFG.eqMeta:5000;
+    ms.forEach(function(j){tot+=(j.sem&&j.sem.w===k)?j.sem.luz:0});
+    var pct=Math.min(100,tot/meta*100),cumple=tot>=meta,cobrado=S.eqCobro===k;
+    h='<section class="tienda-hero tex dp-in" style="--i:0"><div><div class="mute">Tu equipo</div><div class="hero-n" style="font-size:1.5rem">'+esc(t.nombre)+'</div><div class="mute">Código: <b>'+esc(t.cod)+'</b> · '+ms.length+'/'+CFG.eqMax+' miembros</div></div><p class="mute">Bono activo: +'+Math.round(eqBon*100)+'% de luz de bono en cada captura.</p></section>'+
+     '<section class="panel dp-in" style="--i:1"><h2>Meta de la semana</h2><div class="fila"><span>'+nf(tot)+' / '+nf(meta)+' luz</span><span class="mute">'+Math.floor(pct)+'%</span></div><div class="barra" aria-hidden="true"><i style="width:'+pct+'%"></i></div>'+
+     '<div class="btns"><button type="button" data-e="cobrar"'+((cumple&&!cobrado)?'':' disabled')+'>'+(cobrado?'Premio reclamado':cumple?'Reclamar +'+nf(CFG.eqPremio)+' luz de bono':'Aún falta para el premio')+'</button></div></section>'+
+     '<section class="panel dp-in" style="--i:2"><h2>Miembros</h2>'+ms.slice().sort(function(a,b){return((b.sem&&b.sem.w===k?b.sem.luz:0)-(a.sem&&a.sem.w===k?a.sem.luz:0))}).map(function(j){
+       return '<div class="item fila"><span><b>'+esc(j.alias)+'</b>'+(j.id===t.lider?' <span class="chip" style="margin:0">Líder</span>':'')+'<div class="mute">Nivel '+j.nivel+'</div></span><span class="mute">'+nf((j.sem&&j.sem.w===k)?j.sem.luz:0)+' luz esta semana</span></div>'}).join("")+
+     '<div class="btns"><button type="button" class="sec" data-e="salir">Salir del equipo</button></div></section>';
+  }
+  var dest=destinatarios(d),h2=hoyStr(),usados=(S.regD&&S.regD.d===h2)?S.regD.n:0;
+  h+='<section class="panel dp-in" style="--i:3"><h2>Regalos</h2><p class="mute">Envía luz a tu equipo, a tus referidos o a quien te invitó. Quien la recibe la usa como luz de bono (tienda y mejoras). Máximo '+nf(CFG.regMax)+' luz por envío y '+CFG.regDia+' envíos al día. Hoy llevas '+usados+'.</p>';
+  if(dest.length){
+    h+='<label for="rgPara">Para</label><select id="rgPara">'+dest.map(function(j){return '<option value="'+j.id+'">'+esc(j.alias)+'</option>'}).join("")+'</select><label for="rgN">Cantidad de luz</label><input id="rgN" inputmode="numeric" autocomplete="off" placeholder="0"><div class="btns"><button type="button" data-e="regalar">Enviar regalo</button></div>';
+  }else h+='<p class="mute" style="margin:0">Aún no tienes a quién regalar. Únete a un equipo o invita amigos con tu código.</p>';
+  h+='<div class="mute msgf" id="rgMsg" role="status"></div>';
+  var rec=(Datos.leer().jugadores[S.id]&&Datos.leer().jugadores[S.id].regs)||S.regs||[];
+  if(rec.length)h+='<h2 style="margin-top:12px">Regalos recibidos</h2>'+rec.slice(-5).reverse().map(function(r){return '<div class="item fila"><span>'+esc(r.de)+'<div class="mute">'+fch(r.f)+'</div></span><span class="ok">+'+nf(r.n)+' luz</span></div>'}).join("");
+  h+='</section>';
+  $("eqPanel").innerHTML=h;
+}
+$("eqPanel").onclick=function(e){
+  var b=e.target.closest?e.target.closest("[data-e]"):null,a=b&&b.getAttribute("data-e");
+  if(!a||!S||b.disabled)return;
+  var d=Datos.leer(),k=semKey(),hecho=false;
+  if(a==="crear"){
+    var nom=$("eqNom").value.trim();
+    if(nom.length<3){Snd.play("error");$("eqNom").placeholder="Escribe al menos 3 caracteres";return}
+    d.equipos=d.equipos||{};
+    var cod,ok0;do{cod="";for(var q=0;q<5;q++)cod+=ALFA.charAt(Math.floor(Math.random()*ALFA.length));ok0=Object.keys(d.equipos).every(function(x){return d.equipos[x].cod!==cod})}while(!ok0);
+    var id="e"+Date.now().toString(36);d.equipos[id]={id:id,nombre:nom,cod:cod,lider:S.id,creado:new Date().toISOString()};
+    Datos.guardar(d);S.eq=id;hecho=true;Snd.play("equipo");
+  }else if(a==="unir"){
+    var c=$("eqCod").value.trim().toUpperCase(),t=null;
+    Object.keys(d.equipos||{}).forEach(function(x){if(d.equipos[x].cod===c)t=d.equipos[x]});
+    if(!t){Snd.play("error");$("eqCod").value="";$("eqCod").placeholder="Ese código no existe";return}
+    if(miembros(d,t.id).length>=CFG.eqMax){Snd.play("error");$("eqCod").value="";$("eqCod").placeholder="El equipo está lleno";return}
+    S.eq=t.id;hecho=true;Snd.play("equipo");
+  }else if(a==="salir"){
+    var tid=S.eq;S.eq=null;guardar();
+    var d2=Datos.leer(),rest=jugs(d2).filter(function(j){return j.eq===tid});
+    if(!rest.length)delete d2.equipos[tid];else if(d2.equipos[tid]&&d2.equipos[tid].lider===S.id)d2.equipos[tid].lider=rest[0].id;
+    Datos.guardar(d2);hecho=true;Snd.play("adios");
+  }else if(a==="cobrar"){
+    var tt=d.equipos&&d.equipos[S.eq],tot=0,ms=miembros(d,S.eq);
+    ms.forEach(function(j){tot+=(j.sem&&j.sem.w===k)?j.sem.luz:0});
+    if(tt&&tot>=CFG.eqMeta&&S.eqCobro!==k){S.eqCobro=k;S.luz+=CFG.eqPremio;S.bonoLuz=(S.bonoLuz||0)+CFG.eqPremio;hecho=true;Snd.play("premium")}
+  }else if(a==="regalar"){
+    var id2=$("rgPara").value,n=Math.floor(parseFloat($("rgN").value)||0),h2=hoyStr(),r=destinatarios(d).filter(function(j){return j.id===id2})[0];
+    if(!S.regD||S.regD.d!==h2)S.regD={d:h2,n:0};
+    if(!r)return msgf("rgMsg","Elige a quién regalar.");
+    if(n<1)return msgf("rgMsg","Escribe una cantidad.");
+    if(n>CFG.regMax)return msgf("rgMsg","El máximo por regalo es "+nf(CFG.regMax)+" luz.");
+    if(S.regD.n>=CFG.regDia)return msgf("rgMsg","Ya enviaste "+CFG.regDia+" regalos hoy. Mañana puedes más.");
+    if(n>S.luz)return msgf("rgMsg","No tienes tanta luz.");
+    var rr=d.jugadores[r.id],rd=(rr.regRecD&&rr.regRecD.d===h2)?rr.regRecD:{d:h2,n:0};
+    if(rd.n+n>CFG.regRecDia)return msgf("rgMsg",esc(rr.alias)+" ya recibió el máximo de regalos de hoy.");
+    gastar(n);S.regD.n++;
+    rr.luz+=n;rr.bonoLuz=(rr.bonoLuz||0)+n;rd.n+=n;rr.regRecD=rd;
+    rr.regs=(rr.regs||[]).concat([{de:S.alias,n:n,f:new Date().toISOString()}]).slice(-10);
+    Datos.guardar(d);guardar();Snd.play("regalo");pintar();pintarEq();
+    msgf("rgMsg","Enviaste "+nf(n)+" luz de bono a "+rr.alias+".",1);return;
+  }
+  if(hecho){refreshEq();pintar();pintarEq()}
+};
+
+/* ---------- Juego ---------- */
+function ganar(n){
+  if(S.ref)comAcc+=n*CFG.refPct/100;
+  semAdd(n);
+  S.luz+=n;S.luzNivel+=n;S.luzTot+=n;
+  while(S.luzNivel>=CFG.luzNivel*S.nivel){
+    S.luzNivel-=CFG.luzNivel*S.nivel;S.nivel++;Snd.play("nivel");
+    if(S.dia!==hoyStr()){S.dia=hoyStr();S.hoy=0}
+    var d=Datos.leer(),r=r2(Math.min(CFG.recNivel,topeJ()-S.hoy,d.fondo));
+    if(r>0){d.fondo=r2(d.fondo-r);Datos.guardar(d);S.cred=r2(S.cred+r);S.hoy=r2(S.hoy+r);S.usdt=r2(S.usdt+r);msg("Nivel "+S.nivel+": +"+f2(r)+" USDT de recompensa.")}
+    else msg(CFG.recNivel>0?"Nivel "+S.nivel+". Alcanzaste el tope diario; mañana hay más.":"Nivel "+S.nivel+".");
+  }
+  pintar();
+}
+var ultTienda="";
+function pintar(){
+  aplicar(Datos.leer());var an=$("anuncio");an.textContent=CFG.anuncio||"";an.classList.toggle("oculto",!CFG.anuncio);
+  if(S.dia!==hoyStr()){S.dia=hoyStr();S.hoy=0}
+  ensureCod();ensureX();$("hola").textContent=S.alias;
+  $("luz").textContent=Math.floor(S.luz);
+  $("nivel").textContent=S.nivel;
+  $("cred").textContent=f2(S.cred);{var nj=(S.joy||[]).length,bd=$("bdMer");bd.textContent=nj;bd.classList.toggle("oculto",!nj)}pintarHoy();
+  var meta=CFG.luzNivel*S.nivel;
+  $("prog").style.width=Math.min(100,S.luzNivel/meta*100)+"%";
+  $("progTxt").textContent=Math.floor(S.luzNivel)+" / "+meta+" luz para el nivel "+(S.nivel+1);
+  $("hoy").textContent=f2(S.hoy);$("tope").textContent=f2(topeJ());
+  $("fondo").textContent=f2(Datos.leer().fondo);$("min").textContent=CFG.minRetiro;$("btnRetiro").disabled=S.cred<CFG.minRetiro||!(S.val&&S.val.estado==="validada");
+  document.documentElement.setAttribute("data-tema",S.it.tema?"alba":"noche");
+  var h='<div class="sec-t">Mejoras</div>';
+  TIENDA.forEach(function(t){if(!t.unico)h+=tarjeta(t)});
+  h+='<div class="sec-t">Aspecto</div>';
+  TIENDA.forEach(function(t){if(t.unico)h+=tarjeta(t)});
+  h+=podsHtml();
+  h+='<div class="sec-t">Premium</div><div class="cart tex" style="--ac:#f2b134"><div class="cart-ic">'+ICONOS.auto+'</div><div><div class="cart-n"><b>Frascos premium</b><span class="cart-lv">Nuevo</span></div><div class="mute">Sube tu límite diario de USDT. Se pagan con USDT depositado.</div></div><button class="buy" data-ir="premium">Ver frascos premium</button></div>';
+  $("tLuz").textContent=Math.floor(S.luz);{var bn=Math.floor(Math.min(S.bonoLuz||0,S.luz));$("tBono").textContent=bn>0?"Incluye "+nf(bn)+" de luz de bono":""}
+  if(h!==ultTienda){ultTienda=h;$("tienda").innerHTML=h}
+  if(!$("t_cuenta").classList.contains("oculto"))pintarCuenta();
+  guardar();
+}
+function pintarVal(){
+  var v=S.val,p=$("valPanel"),dir=CFG.depDir,m=CFG.depMonto,h='<h2>Validar tu dirección</h2>';
+  if(v&&v.estado==="validada"){p.innerHTML=h+'<div class="ok">Validada</div><div class="mute" style="word-break:break-all">'+esc(v.w)+'</div>';$("walletOk").textContent=v.w;return}
+  $("walletOk").textContent="—";
+  h+='<p class="mute">Para evitar cuentas repetidas, cada dirección se valida con un depósito de <b>'+m+' USDT</b> (red BEP20) enviado desde tu propia dirección. Ese monto no se pierde: se suma a tu saldo y se te devuelve con tu retiro.</p>';
+  if(v&&v.estado==="pendiente"){p.innerHTML=h+'<div class="mute" style="word-break:break-all">En verificación: '+esc(v.w)+'. Aquí aparecerá cuando esté validada.</div>';return}
+  if(v&&v.estado==="rechazada")h+='<div class="bad">Tu validación fue rechazada. Revisa que el depósito salga de tu dirección y vuelve a intentarlo.</div>';
+  h+='<label for="valW">Tu dirección USDT (BEP20)</label><input id="valW" placeholder="0x…" autocomplete="off">'+
+   '<div class="mute" style="margin-top:8px">Envía '+m+' USDT (BEP20) a esta dirección:</div>'+
+   '<div id="qr" style="background:#fff;padding:10px;display:inline-block;border-radius:10px;margin:8px 0"></div>'+
+   '<div style="word-break:break-all">'+esc(dir)+'</div><div class="btns"><button class="sec" id="btnCopiar" type="button">Copiar dirección</button></div>'+
+   '<label for="valTx">Hash de la transacción (opcional)</label><input id="valTx" autocomplete="off">'+
+   '<div class="btns"><button id="btnVal" type="button">Ya hice el depósito</button></div><div class="mute" id="valMsg"></div>';
+  p.innerHTML=h;
+  if(window.QRCode)new QRCode($("qr"),{text:dir,width:170,height:170});
+  $("btnCopiar").onclick=copiar;$("btnVal").onclick=enviarVal;
+}
+function copiar(){
+  var d=CFG.depDir,b=this;
+  function ok(){Snd.play("copia");b.textContent="Copiada ✓";setTimeout(function(){b.textContent="Copiar dirección"},2000)}
+  function fall(){var t=document.createElement("textarea");t.value=d;document.body.appendChild(t);t.select();try{document.execCommand("copy");ok()}catch(e){b.textContent="Copia a mano"}document.body.removeChild(t)}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(d).then(ok,fall);else fall();
+}
+function enviarVal(){
+  var w=$("valW").value.trim(),tx=$("valTx").value.trim(),m=$("valMsg");
+  if(!/^0x[a-fA-F0-9]{40}$/.test(w)){Snd.play("error");m.textContent="La dirección no es válida. Debe empezar con 0x y tener 42 caracteres.";return}
+  if(w.toLowerCase()===CFG.depDir.toLowerCase()){Snd.play("error");m.textContent="Esa es la dirección de depósito. Escribe tu propia dirección.";return}
+  var d=Datos.leer(),k,o;
+  for(k in d.jugadores){o=d.jugadores[k];if(o.id!==S.id&&o.val&&o.val.estado!=="rechazada"&&o.val.w.toLowerCase()===w.toLowerCase()){Snd.play("error");m.textContent="Esa dirección ya está registrada por otro jugador.";return}}
+  S.val={w:w,tx:tx,estado:"pendiente",monto:CFG.depMonto,fecha:new Date().toISOString()};Snd.play("enviado");
+  guardar();pintarVal();
+}
+function etqD(e){return e==="pendiente"?"En verificación":e==="acreditado"?"Acreditado":"Rechazado"}
+function misDep(){return(Datos.leer().depositos||[]).filter(function(x){return x.pid===S.id}).reverse()}
+var depPaso=0,depOkMsg="",depGen=0;
+function dpPasos(n){
+  var t=["Tipo","Dirección","Confirmar"],h='<div class="dp-steps" aria-hidden="true">';
+  t.forEach(function(x,i){if(i)h+='<div class="dp-lin'+(i<=n?' on':'')+'"></div>';h+='<div class="dp-st'+(i<n?' on':i===n?' now':'')+'"><i>'+(i<n?'✓':i+1)+'</i><span>'+x+'</span></div>'});
+  return h+'</div>';
+}
+function pintarDep(){
+  var p=$("depPanel"),dir=CFG.depDir,min=CFG.minDep>0?CFG.minDep:1,h=dpPasos(depPaso)+'<div class="dp-vista">',
+      aviso=function(i){return '<div class="dp-tiempo dp-in" style="--i:'+i+'"><span class="dp-reloj">⏱</span><span>La llegada de los fondos demora entre 2 y 5 minutos.</span></div>'};
+  if(depPaso===0){
+    var ok=depOkMsg;depOkMsg="";
+    if(ok)h+='<div class="exito dp-in" role="status"><b>✨ ¡Depósito enviado!</b>'+esc(ok)+'</div>';
+    h+='<h2 class="dp-in" style="--i:0">Depositar fondos</h2><p class="mute dp-in" style="--i:1">Elige el tipo de depósito. El monto se suma a tu saldo de depósito, que sirve para comprar frascos premium.</p>'+
+     '<button type="button" class="dp-op dp-in" style="--i:2" data-dp="elegir"><span class="dp-coin" aria-hidden="true">₮</span><span><b>USDT BEP20</b><span class="mute">Red BNB Smart Chain</span></span><span class="dp-flecha" aria-hidden="true">›</span></button>'+aviso(3);
+    var m=misDep();
+    if(m.length)h+='<h2 class="dp-in" style="margin-top:18px;--i:4">Tus depósitos</h2>'+m.map(function(x,i){
+      return '<div class="item fila dp-in" style="--i:'+(5+Math.min(i,6))+'"><span>'+f2(x.monto)+' USDT<div class="mute">'+fch(x.fecha)+'</div></span><span class="'+(x.estado==="acreditado"?"ok":x.estado==="rechazado"?"bad":"mute")+'">'+etqD(x.estado)+'</span></div>'}).join("");
+  }else if(depPaso===1){
+    h+='<button type="button" class="dp-back" data-dp="atras0">← Cambiar tipo</button>'+
+     '<div class="dp-gen dp-in" style="--i:0"><span class="dp-chip">USDT · BEP20</span><h2 style="margin-top:10px">Genera tu dirección de depósito</h2>'+
+     '<p class="mute">Te daremos la dirección y el código QR para que envíes tu USDT por la red BEP20.</p>'+
+     '<button type="button" class="dp-grande" data-dp="gen">✨ Generar dirección</button></div>'+aviso(2);
+  }else{
+    h+='<button type="button" class="dp-back" data-dp="atras1">← Volver</button>'+
+     '<div class="dp-in" style="--i:0"><span class="dp-chip">USDT · BEP20</span></div>'+
+     '<div class="dp-qrc dp-in" style="--i:1"><div class="dp-qrwrap"><div id="qrDep"></div></div></div>'+
+     '<div class="mute dp-in" style="--i:2;text-align:center">Envía solo USDT por la red BEP20 a esta dirección:</div>'+
+     '<div class="dp-dir dp-in" style="--i:3">'+esc(dir)+'</div>'+
+     '<div class="btns dp-in" style="--i:4"><button class="sec" id="btnCopiarDep" type="button">Copiar dirección</button></div>'+
+     '<div class="dp-sep dp-in" style="--i:5"><span>Después de enviar, completa esto</span></div>'+
+     '<div class="dp-in" style="--i:6"><label for="depM">Monto enviado (USDT, mínimo '+min+') <span class="dp-req">*</span></label><input id="depM" inputmode="decimal" autocomplete="off" placeholder="0.00"></div>'+
+     '<div class="dp-in" style="--i:7"><label for="depTx">Hash de la transacción <span class="dp-req">*</span> <span class="mute">(obligatorio)</span></label><input id="depTx" autocomplete="off" placeholder="0x…" spellcheck="false">'+
+     '<div class="mute" style="font-size:.78rem">Lo encuentras en tu billetera o en BscScan tras enviar. Empieza con 0x y tiene 66 caracteres.</div></div>'+
+     '<div class="btns dp-in" style="--i:8"><button id="btnDep" type="button" class="dp-grande">Ya envié el depósito</button></div>'+
+     '<div class="mute msgf" id="depMsg" role="status"></div>'+aviso(9);
+  }
+  p.innerHTML=h+'</div>';
+  if(depPaso===2){
+    if(window.QRCode)new QRCode($("qrDep"),{text:dir,width:170,height:170});
+    $("btnCopiarDep").onclick=copiar;$("btnDep").onclick=enviarDep;
+  }
+}
+$("depPanel").onclick=function(e){
+  var b=e.target.closest?e.target.closest("[data-dp]"):null,a=b&&b.getAttribute("data-dp");
+  if(!a)return;
+  if(a==="elegir"){depPaso=1;depGen++;pintarDep()}
+  else if(a==="atras0"){depPaso=0;depGen++;pintarDep()}
+  else if(a==="atras1"){depPaso=1;depGen++;pintarDep()}
+  else if(a==="gen")generarDir();
+};
+function generarDir(){
+  var id=++depGen,tx=["Creando tu dirección…","Preparando el código QR…","¡Lista!"];Snd.play("scan");
+  $("depPanel").innerHTML=dpPasos(1)+'<div class="dp-carga dp-vista"><div class="dp-anw"><div class="dp-anillo"></div><span class="dp-coin dp-chico" aria-hidden="true">₮</span></div><div id="dpTx" class="dp-tx" role="status">'+tx[0]+'</div></div>';
+  setTimeout(function(){if(id===depGen&&$("dpTx"))$("dpTx").textContent=tx[1]},650);
+  setTimeout(function(){if(id===depGen&&$("dpTx"))$("dpTx").textContent=tx[2]},1250);
+  setTimeout(function(){if(id!==depGen)return;depPaso=2;Snd.play("listo");pintarDep()},1600);
+}
+function enviarDep(){
+  var min=CFG.minDep>0?CFG.minDep:1,n=parseFloat(String($("depM").value).replace(",",".")),tx=$("depTx").value.trim();
+  if(!isFinite(n)||n<min)return msgf("depMsg","El monto mínimo es "+min+" USDT.");
+  if(!tx)return msgf("depMsg","El hash de la transacción es obligatorio.");
+  if(!/^0x[a-fA-F0-9]{64}$/.test(tx))return msgf("depMsg","El hash no es válido. Debe empezar con 0x y tener 66 caracteres.");
+  var d=Datos.leer(),k,o,t=tx.toLowerCase();d.depositos=d.depositos||[];
+  for(k=0;k<d.depositos.length;k++)if(d.depositos[k].estado!=="rechazado"&&d.depositos[k].tx.toLowerCase()===t)return msgf("depMsg","Ese hash ya fue enviado.");
+  for(k in d.jugadores){o=d.jugadores[k];if(o.val&&o.val.tx&&o.val.estado!=="rechazada"&&o.val.tx.toLowerCase()===t)return msgf("depMsg","Ese hash ya se usó para validar una dirección.")}
+  d.depositos.push({id:"d"+Date.now().toString(36),pid:S.id,alias:S.alias,monto:r2(n),tx:tx,fecha:new Date().toISOString(),estado:"pendiente"});
+  Datos.guardar(d);Snd.play("enviado");depPaso=0;depGen++;depOkMsg="Queda en verificación hasta que el administrador lo confirme.";pintarDep();pintarCuenta();
+}
+function nf(n){return Math.floor(n).toLocaleString("es")}
+function swapInfo(){
+  var d=Datos.leer(),rate=CFG.swapLuz>0?CFG.swapLuz:20000,min=CFG.swapMin>0?CFG.swapMin:1000;
+  if(S.dia!==hoyStr()){S.dia=hoyStr();S.hoy=0}
+  var resto=Math.max(0,Math.round(Math.min(topeJ()-S.hoy,d.fondo)*100)),
+      porLuz=Math.floor(luzCambiable()*100/rate),cents=Math.max(0,Math.min(resto,porLuz));
+  return{rate:rate,min:min,resto:resto,maxLuz:Math.ceil(cents*rate/100)}
+}
+function pintarSwap(){
+  var i=swapInfo(),pct=Math.min(100,S.hoy/Math.max(.01,topeJ())*100);
+  $("swPanel").innerHTML='<section class="tienda-hero tex"><div><div class="mute">Luz cambiable</div><div class="hero-n"><b>'+nf(luzCambiable())+'</b></div><div class="mute">+ '+nf(Math.floor(Math.min(S.bonoLuz||0,S.luz)))+' de bono (solo tienda)</div></div>'+
+   '<div class="hero-n" aria-hidden="true">⇄</div><div style="text-align:right"><div class="mute">Saldo USDT</div><div class="hero-n" style="color:var(--ok)"><b>'+f2(S.cred)+'</b></div></div></section>'+
+   '<section class="panel"><h2>Cambiar luz por USDT</h2>'+
+   '<p class="mute">Tasa: <b>'+nf(i.rate)+' luz = 1 USDT</b> ('+nf(i.min)+' luz = '+f2(i.min/i.rate)+' USDT). Cambio mínimo: '+nf(i.min)+' luz.</p>'+
+   '<div class="fila"><span>Hoy: <b>'+f2(S.hoy)+'</b> / '+f2(topeJ())+' USDT</span></div><div class="barra" aria-hidden="true"><i style="width:'+pct+'%"></i></div>'+
+   '<label for="swN">Luz a cambiar</label><input id="swN" inputmode="numeric" autocomplete="off" placeholder="0">'+
+   '<div class="btns"><button type="button" class="sec" id="swMin">Mínimo</button><button type="button" class="sec" id="swMed">Mitad</button><button type="button" class="sec" id="swMax">Máximo</button></div>'+
+   '<div class="mute" id="swPrev" style="margin:8px 0"></div>'+
+   '<div class="btns"><button type="button" id="btnSwap">Cambiar por USDT</button></div><div class="mute msgf" id="swMsg" role="status"></div></section>'+
+   '<div class="panel aviso">El USDT cambiado se suma a tu saldo disponible. Para retirarlo, tu dirección debe estar validada.</div>';
+  function prev(){var n=Math.floor(parseFloat($("swN").value)||0),c=Math.floor(n*100/i.rate);
+    $("swPrev").textContent=c>0?"Recibirás "+f2(c/100)+" USDT usando "+nf(Math.ceil(c*i.rate/100))+" luz.":"Escribe cuánta luz quieres cambiar."}
+  function pon(n){$("swN").value=Math.max(0,Math.floor(n))||"";prev()}
+  $("swN").oninput=prev;
+  $("swMin").onclick=function(){pon(Math.min(i.min,i.maxLuz))};$("swMed").onclick=function(){pon(i.maxLuz/2)};$("swMax").onclick=function(){pon(i.maxLuz)};
+  $("btnSwap").onclick=cambiar;prev();
+}
+function cambiar(){
+  var i=swapInfo(),n=Math.floor(parseFloat($("swN").value)||0),m="swMsg";
+  if(i.resto<=0)return msgf(m,"Ya llegaste al tope de hoy ("+f2(topeJ())+" USDT). Mañana puedes cambiar más.");
+  if(n<=0)return msgf(m,"Escribe cuánta luz quieres cambiar.");
+  if(n>luzCambiable())return msgf(m,"No tienes tanta luz cambiable. La luz de bono solo sirve en la tienda y mejoras.");
+  if(n>i.maxLuz)return msgf(m,"Hoy solo puedes cambiar hasta "+nf(i.maxLuz)+" luz.");
+  if(n<i.min&&n<i.maxLuz)return msgf(m,"El cambio mínimo es de "+nf(i.min)+" luz.");
+  var c=Math.floor(n*100/i.rate);if(c<1)return msgf(m,"Esa cantidad es muy pequeña.");
+  var usada=Math.ceil(c*i.rate/100),usdt=c/100,d=Datos.leer();
+  d.fondo=r2(d.fondo-usdt);Datos.guardar(d);
+  S.luz-=usada;S.cred=r2(S.cred+usdt);S.usdt=r2(S.usdt+usdt);S.hoy=r2(S.hoy+usdt);
+  guardar();pintar();pintarSwap();
+  Snd.play("swap");msgf(m,"Listo: cambiaste "+nf(usada)+" luz por "+f2(usdt)+" USDT.",1);
+}
+function pintarPrem(){
+  var fr=frascos().slice().sort(function(a,b){return a.fin-b.fin}),max=CFG.frascoMax>0?CFG.frascoMax:10,
+      dep=S.dep||0,pl=PLANS(),k,h;
+  h='<section class="tienda-hero tex"><div><div class="mute">Saldo depositado</div><div class="hero-n" style="color:var(--ok)"><b>'+f2(dep)+'</b></div></div><p class="mute">Los frascos se pagan solo con USDT depositado, no con el que ganas jugando.</p></section>'+
+   '<div class="mute" style="margin:4px">Tu límite de hoy: <b>'+f2(topeJ())+' USDT</b></div>';
+  pl.forEach(function(p,i){
+    var n=nPlan(p.id),pips="",full=n>=max;
+    for(k=0;k<max;k++)pips+='<i'+(k<n?' class="on"':'')+'></i>';
+    h+='<section class="cart tex" style="--ac:'+p.ac+'"><div class="cart-ic">'+ICONOS.auto+'</div><div><div class="cart-n"><b>'+esc(p.nombre)+'</b><span class="cart-lv">'+n+' / '+max+'</span></div>'+
+     '<div class="mute">+'+f2(p.usdt)+' USDT de límite diario, durante '+p.dias+' días.</div><div class="pips" aria-hidden="true">'+pips+'</div><div class="cart-ef">Plan '+(i+1)+' de '+pl.length+'</div></div>'+
+     '<button class="buy" data-p="'+p.id+'"'+((full||dep<p.precio)?' disabled':'')+'>'+(full?'Máximo alcanzado':'Comprar por '+f2(p.precio)+' USDT')+'</button></section>';
+  });
+  if(dep<pl[0].precio)h+='<div class="panel aviso">Te faltan '+f2(pl[0].precio-dep)+' USDT para el plan más barato. Deposítalos en la sección Depósito.<div class="btns"><button type="button" class="sec" id="btnIrDep">Ir a Depósito</button></div></div>';
+  h+='<div class="mute msgf" id="premMsg" role="status"></div>';
+  if(fr.length)h+='<section class="panel"><h2>Tus frascos activos</h2>'+fr.map(function(f){var dd=Math.ceil((f.fin-Date.now())/864e5),p=pl.filter(function(x){return x.id===(f.p||"p1")})[0]||pl[0];
+    return '<div class="item fila"><span>'+esc(p.nombre)+' <span class="mute">(+'+f2(f.u!=null?f.u:p.usdt)+' USDT/día)</span></span><span class="mute">vence en '+dd+(dd===1?' día':' días')+'</span></div>'}).join("")+'</section>';
+  $("prPanel").innerHTML=h;
+}
+$("prPanel").onclick=function(e){
+  var b=e.target.closest?e.target.closest("[data-p]"):null;
+  if(b&&!b.disabled)return comprarFrasco(b.getAttribute("data-p"));
+  if(e.target.id==="btnIrDep")ir("deposito");
+};
+function comprarFrasco(id){
+  var p=PLANS().filter(function(x){return x.id===id})[0],max=CFG.frascoMax>0?CFG.frascoMax:10;
+  if(!p)return;
+  if(nPlan(id)>=max)return msgf("premMsg","Ya tienes el máximo de "+max+" frascos activos de este plan.");
+  if((S.dep||0)<p.precio)return msgf("premMsg","Tu saldo depositado no alcanza. Deposita USDT primero.");
+  S.dep=r2(S.dep-p.precio);refPremium();S.fr.push({fin:Date.now()+p.dias*864e5,p:id,u:p.usdt});
+  var d=Datos.leer();d.ingr=r2((d.ingr||0)+p.precio);Datos.guardar(d);
+  guardar();pintar();pintarPrem();
+  Snd.play("premium");msgf("premMsg","¡"+p.nombre+" comprado! Tu límite diario ahora es de "+f2(topeJ())+" USDT.",1);
+}
+function lockJ(){try{return JSON.parse(localStorage.getItem("luc_lockj"))||{n:0,hasta:0}}catch(e){return{n:0,hasta:0}}}
+function etq(e){return e==="pendiente"?"En aprobación":e==="pagado"?"Pagado":"Rechazado"}
+function pintarRet(){
+  pintarVal();
+  var m=Datos.leer().retiros.filter(function(r){return r.pid===S.id}).reverse();
+  $("misRetiros").innerHTML=m.map(function(r){
+    return '<div class="item fila"><span>'+f2(r.monto)+' USDT<div class="mute">'+fch(r.fecha)+'</div></span><span class="'+(r.estado==="pagado"?"ok":r.estado==="rechazado"?"bad":"mute")+'">'+etq(r.estado)+'</span></div>'}).join("");
+}
+function pintarCuenta(){
+  if(!S)return;
+  var d=Datos.leer(),val=S.val&&S.val.estado==="validada",
+      ret=d.retiros.filter(function(r){return r.pid===S.id}),
+      pend=ret.filter(function(r){return r.estado==="pendiente"}).reduce(function(a,r){return a+r.monto},0);
+  $("cDep").textContent="Depositado: "+f2(S.dep||0)+" USDT · frascos activos: "+frascos().length;
+  $("cAvatar").textContent=S.alias.charAt(0).toUpperCase();
+  $("cDesde").textContent="Jugando desde "+fch(S.creado).split(",")[0];
+  $("cNivel").textContent="Nivel "+S.nivel;
+  $("cSaldo").textContent=f2(S.cred);
+  $("cPend").textContent=pend>0?f2(pend)+" USDT en aprobación":"Sin retiros pendientes";
+  $("cGanado").textContent=f2(S.usdt||0);$("cHoy").textContent=f2(S.hoy||0);
+  $("cAtr").textContent=S.atr||0;$("cLuzTot").textContent=Math.floor(S.luzTot||0);
+  var ay;
+  if(!val)ay="Para retirar, primero valida tu dirección en la pestaña Validar.";
+  else if(S.cred<CFG.minRetiro)ay="Retiro mínimo: "+CFG.minRetiro+" USDT. Te faltan "+f2(CFG.minRetiro-S.cred)+".";
+  else ay="Tu saldo está listo para retirar.";
+  $("cAyuda").textContent=ay;
+  $("cBtnRetirar").disabled=val&&S.cred<CFG.minRetiro;
+  $("cBtnDepositar").textContent="Depositar";
+  $("cWallet").innerHTML=S.val?('<div style="word-break:break-all;color:var(--ink)">'+esc(S.val.w)+'</div><div class="'+(val?"ok":S.val.estado==="rechazada"?"bad":"mute")+'" style="margin-top:4px">'+(val?"Validada":S.val.estado==="pendiente"?"En verificación":"Rechazada")+'</div>'):'Aún no has validado una dirección. Hazlo en la pestaña Validar.';
+  var mj=[["Red grande",S.it.tap],["Auto-recolector",S.it.auto]].map(function(x){return '<div class="mejora"><span>'+x[0]+'</span><b>nivel '+x[1]+'</b></div>'}).join("")+
+    '<div class="mejora"><span>Tema Alba</span><b>'+(S.it.tema?"activo":"sin comprar")+'</b></div>';
+  $("cMejoras").innerHTML=mj;
+  var dm=misDep().slice(0,3);
+  $("cDepMov").innerHTML=dm.length?dm.map(function(x){
+    return '<div class="item fila"><span>'+f2(x.monto)+' USDT<div class="mute">'+fch(x.fecha)+'</div></span><span class="'+(x.estado==="acreditado"?"ok":x.estado==="rechazado"?"bad":"mute")+'">'+etqD(x.estado)+'</span></div>'}).join(""):'<p class="mute" style="margin:0">Todavía no has hecho depósitos.</p>';
+  var m=ret.slice(-3).reverse();
+  $("cMov").innerHTML=m.length?m.map(function(r){
+    return '<div class="item fila"><span>'+f2(r.monto)+' USDT<div class="mute">'+fch(r.fecha)+'</div></span><span class="'+(r.estado==="pagado"?"ok":r.estado==="rechazado"?"bad":"mute")+'">'+etq(r.estado)+'</span></div>'}).join(""):'<p class="mute" style="margin:0">Todavía no has pedido retiros.</p>';
+}
+var TITULOS={jugar:"Jugar",tienda:"Tienda",swap:"Cambiar luz",premium:"Frascos premium",ref:"Referidos",rul:"Ruleta diaria",masc:"Mascotas",eq:"Equipo y regalos",deposito:"Depósito",validar:"Validar dirección",retiros:"Retiros",cuenta:"Cuenta",mercado:"Mercado"};
+function abrirMenu(){Snd.play("abre");$("menu").classList.add("abierto");$("velo").classList.add("abierto");$("menu").setAttribute("aria-hidden","false");$("btnMenu").setAttribute("aria-expanded","true")}
+function cerrarMenu(){if($("menu").classList.contains("abierto"))Snd.play("cierra");$("menu").classList.remove("abierto");$("velo").classList.remove("abierto");$("menu").setAttribute("aria-hidden","true");$("btnMenu").setAttribute("aria-expanded","false")}
+function ir(t){
+  ["jugar","tienda","mercado","swap","premium","ref","rul","masc","eq","deposito","validar","retiros","cuenta"].forEach(function(n){
+    $("t_"+n).classList.toggle("oculto",n!==t);
+    document.querySelector('#menu [data-t="'+n+'"]').setAttribute("aria-current",n===t);
+  });
+  $("tituloSec").textContent=TITULOS[t]||"";cerrarMenu();navBar(t);
+  if(t==="jugar")medir();
+  if(t==="swap"){pintar();pintarSwap()}
+  if(t==="premium"){pintar();pintarPrem()}
+  if(t==="ref"){pintar();pintarRef()}
+  if(t==="rul"){pintar();pintarRul()}
+  if(t==="masc"){pintar();pintarMasc()}
+  if(t==="eq"){pintar();refreshEq();pintarEq()}
+  if(t==="deposito"){pintar();depPaso=0;depGen++;pintarDep()}
+  if(t==="validar"){pintar();pintarVal()}
+  if(t==="retiros"){pintar();pintarRet()}
+  if(t==="cuenta"){pintar();pintarCuenta()}
+  if(t==="mercado"){pintar();pintarMer()}
+}
+$("menu").onclick=function(e){var b=e.target.closest?e.target.closest("[data-t]"):e.target,t=b&&b.getAttribute&&b.getAttribute("data-t");if(t){Snd.play("nav");ir(t)}};
+$("btnMenu").onclick=function(){$("menu").classList.contains("abierto")?cerrarMenu():abrirMenu()};
+$("btnCerrarMenu").onclick=cerrarMenu;$("velo").onclick=cerrarMenu;
+document.addEventListener("keydown",function(e){if(e.key==="Escape")cerrarMenu()});
+function mostrar(){
+  $("registro").classList.toggle("oculto",!!S);
+  $("juego").classList.toggle("oculto",!S);
+  if(S){bichos=[];joya=null;joyT=Date.now()+20000;pintar();ir("jugar");Snd.ambOn();refreshEq();guiaIni()}else{Snd.ambOff();document.documentElement.setAttribute("data-tema","noche")}
+}
+function sha256hex(str){
+  var K=[],H0=[],i,j,n=2,c=0;
+  function frac(x){return(x-Math.floor(x))*4294967296|0}
+  while(K.length<64){var p=true;for(j=2;j*j<=n;j++)if(n%j===0){p=false;break}
+    if(p){if(c<8)H0[c]=frac(Math.sqrt(n));K[c]=frac(Math.cbrt?Math.cbrt(n):Math.pow(n,1/3));c++}n++}
+  var u=unescape(encodeURIComponent(str)),w=[],l=u.length*8;
+  var tot=((l+64>>9)<<4)+16;for(i=0;i<tot;i++)w[i]=0;
+  for(i=0;i<u.length;i++)w[i>>2]|=u.charCodeAt(i)<<(24-(i%4)*8);
+  w[l>>5]|=0x80<<(24-l%32);w[tot-1]=l;
+  var H=H0.slice(),W=new Array(64);
+  for(j=0;j<tot;j+=16){
+    var a=H[0],b=H[1],cc=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(i=0;i<64;i++){
+      if(i<16)W[i]=w[j+i]|0;else{
+        var g0=W[i-15],g1=W[i-2];
+        W[i]=(W[i-16]+((g0>>>7|g0<<25)^(g0>>>18|g0<<14)^(g0>>>3))+W[i-7]+((g1>>>17|g1<<15)^(g1>>>19|g1<<13)^(g1>>>10)))|0}
+      var t1=(h+((e>>>6|e<<26)^(e>>>11|e<<21)^(e>>>25|e<<7))+((e&f)^(~e&g))+K[i]+W[i])|0;
+      var t2=(((a>>>2|a<<30)^(a>>>13|a<<19)^(a>>>22|a<<10))+((a&b)^(a&cc)^(b&cc)))|0;
+      h=g;g=f;f=e;e=(d+t1)|0;d=cc;cc=b;b=a;a=(t1+t2)|0}
+    H[0]=(H[0]+a)|0;H[1]=(H[1]+b)|0;H[2]=(H[2]+cc)|0;H[3]=(H[3]+d)|0;H[4]=(H[4]+e)|0;H[5]=(H[5]+f)|0;H[6]=(H[6]+g)|0;H[7]=(H[7]+h)|0}
+  return H.map(function(x){return("00000000"+(x>>>0).toString(16)).slice(-8)}).join("")
+}
+
+function hashU(pw,s,fb){
+  if(!fb&&window.crypto&&crypto.subtle)return hash(pw,s);
+  var h=pw+s,i;for(i=0;i<3000;i++)h=sha256hex(h+s);
+  return Promise.resolve("f$"+h);
+}
+function almacenOk(){try{var k="luc_test";localStorage.setItem(k,"1");var ok=localStorage.getItem(k)==="1";localStorage.removeItem(k);return ok}catch(e){return false}}
+function modo(m){
+  var l=m==="login";
+  $("formLogin").classList.toggle("oculto",!l);$("formReg").classList.toggle("oculto",l);
+  $("tabLogin").setAttribute("aria-selected",l);$("tabReg").setAttribute("aria-selected",!l);
+  $("lMsg").textContent="";$("rMsg").textContent="";$("lExito").classList.add("oculto");
+  try{$(l?"lUser":"rUser").focus()}catch(e){}
+}
+function msgf(id,t,ok){if(!ok&&t&&!/…$/.test(t))Snd.play("error");var m=$(id);m.textContent=t;m.className="mute msgf "+(ok?"ok":"bad")}
+function buscar(d,n){for(var k in d.jugadores)if(d.jugadores[k].alias.toLowerCase()===n.toLowerCase())return d.jugadores[k];return null}
+function entrarCon(j){
+  S=j;Snd.play("bienvenida");try{localStorage.setItem(SESK,S.id)}catch(e){}
+  ["lUser","lPass","rUser","rPass","rPass2","rRef"].forEach(function(i){$(i).value=""});
+  $("lMsg").textContent="";$("rMsg").textContent="";$("lExito").classList.add("oculto");mostrar();
+}
+$("registro").addEventListener("click",function(e){
+  var m=e.target.getAttribute&&e.target.getAttribute("data-m");
+  if(m&&e.target.tagName==="A"){e.preventDefault();modo(m)}
+  else if(m)modo(m);
+});
+$("registro").addEventListener("keydown",function(e){
+  if(e.key!=="Enter"||e.target.tagName!=="INPUT")return;
+  e.preventDefault();
+  $(e.target.id.charAt(0)==="r"?"btnReg":"btnLogin").click();
+});
+
+function iniciarSesion(){
+  var n=$("lUser").value.trim(),c=$("lPass").value,id="lMsg",btn=$("btnLogin");
+  $("lExito").classList.add("oculto");
+  try{
+    if(!almacenOk()){msgf(id,"Tu navegador bloquea el almacenamiento y no se puede guardar la cuenta. Abre el archivo en Chrome o Safari (fuera de vistas previas).");return}
+    if(!n||!c){msgf(id,"Escribe tu usuario y tu contraseña.");return}
+    var L=lockJ();if(Date.now()<L.hasta){msgf(id,"Demasiados intentos. Espera "+Math.ceil((L.hasta-Date.now())/1000)+" segundos.");return}
+    var ex=buscar(Datos.leer(),n);
+    if(!ex){msgf(id,"Ese usuario no existe. Crea una cuenta en la pestaña «Crear cuenta».");return}
+    msgf(id,"Comprobando…");btn.disabled=true;
+    var fin=function(){btn.disabled=false};
+    if(!ex.pw){
+      if(c.length<6){fin();msgf(id,"Esta cuenta no tiene contraseña. Escribe una nueva de al menos 6 caracteres.");return}
+      var s0=sal();
+      hashU(c,s0).then(function(h){
+        var d2=Datos.leer(),j=d2.jugadores[ex.id];j.pw={s:s0,h:h};Datos.guardar(d2);fin();entrarCon(j);
+      }).catch(function(){fin();msgf(id,"No se pudo procesar la contraseña.")});
+      return;
+    }
+    hashU(c,ex.pw.s,String(ex.pw.h).indexOf("f$")===0).then(function(h){
+      fin();
+      if(h!==ex.pw.h){
+        L.n++;if(L.n>=5)L.hasta=Date.now()+60000*(L.n-4);
+        try{localStorage.setItem("luc_lockj",JSON.stringify(L))}catch(x){}
+        msgf(id,"Usuario o contraseña incorrectos.");return;
+      }
+      try{localStorage.removeItem("luc_lockj")}catch(x){}
+      entrarCon(Datos.leer().jugadores[ex.id]);
+    }).catch(function(){fin();msgf(id,"No se pudo comprobar la contraseña. Inténtalo otra vez.")});
+  }catch(err){btn.disabled=false;msgf(id,"Error inesperado: "+err.message)}
+}
+
+function crearCuenta(){
+  var n=$("rUser").value.trim(),c=$("rPass").value,id="rMsg",btn=$("btnReg");
+  try{
+    if(!almacenOk()){msgf(id,"Tu navegador bloquea el almacenamiento y no se puede guardar la cuenta. Abre el archivo en Chrome o Safari (fuera de vistas previas).");return}
+    if(n.length<3){msgf(id,"El usuario necesita al menos 3 caracteres.");return}
+    if(!/^[\w.\-áéíóúüñÁÉÍÓÚÜÑ]+$/.test(n)){msgf(id,"El usuario solo puede tener letras, números, punto, guion y guion bajo (sin espacios).");return}
+    if(c.length<6){msgf(id,"La contraseña necesita al menos 6 caracteres.");return}
+    if(c!==$("rPass2").value){msgf(id,"Las contraseñas no coinciden.");return}
+    if(buscar(Datos.leer(),n)){msgf(id,"Ese usuario ya existe. Elige otro o inicia sesión.");return}
+    var rc=($("rRef").value||"").trim().toUpperCase();
+    if(rc&&!porCod(Datos.leer(),rc)){msgf(id,"El código de referido no existe. Revísalo o déjalo vacío.");return}
+    msgf(id,"Creando tu cuenta…");btn.disabled=true;
+    var s1=sal();
+    hashU(c,s1).then(function(h){
+      btn.disabled=false;
+      var d2=Datos.leer();
+      if(buscar(d2,n)){msgf(id,"Ese usuario ya existe. Elige otro o inicia sesión.");return}
+      var j=nuevo(n);j.pw={s:s1,h:h};j.cod=unico(d2);var rf=rc?porCod(d2,rc):null;
+      if(rf){j.ref=rf.id;rf.luz+=CFG.refRegistro;rf.luzTot=(rf.luzTot||0)+CFG.refRegistro;rf.refBonos=(rf.refBonos||0)+CFG.refRegistro}
+      d2.jugadores[j.id]=j;Datos.guardar(d2);
+      if(!buscar(Datos.leer(),n)){msgf(id,"No se pudo guardar la cuenta en este navegador.");return}
+      $("rUser").value="";$("rPass").value="";$("rPass2").value="";$("rRef").value="";
+      modo("login");
+      Snd.play("ok");$("lUser").value=n;
+      var ex=$("lExito");ex.innerHTML="<b>✨ ¡Cuenta registrada!</b>Tu cuenta «"+esc(n)+"» se creó correctamente. Escribe tu contraseña para iniciar sesión."+(rf?" Se aplicó el código de "+esc(rf.alias)+".":"");
+      ex.classList.remove("oculto");
+      try{$("lPass").focus()}catch(e){}
+    }).catch(function(){btn.disabled=false;msgf(id,"No se pudo crear la cuenta. Inténtalo otra vez.")});
+  }catch(err){btn.disabled=false;msgf(id,"Error inesperado: "+err.message)}
+}
+$("btnLogin").onclick=iniciarSesion;
+$("btnReg").onclick=crearCuenta;
+$("cBtnRetirar").onclick=function(){ir(S.val&&S.val.estado==="validada"?"retiros":"validar")};
+$("cBtnDepositar").onclick=function(){ir("deposito")};
+$("btnSalir").onclick=function(){Snd.play("adios");flushCom();S=null;try{localStorage.removeItem(SESK)}catch(e){}mostrar()};
+$("tienda").onclick=function(e){
+  var pb=e.target.closest?e.target.closest("[data-pod]"):null;if(pb){comprarPod(pb.getAttribute("data-pod"));return}
+  var bt=e.target.closest?e.target.closest("[data-id],[data-ir]"):e.target,id=bt&&bt.getAttribute&&bt.getAttribute("data-id");
+  if(bt&&bt.getAttribute&&bt.getAttribute("data-ir")){ir(bt.getAttribute("data-ir"));return}
+  if(!id)return;
+  var t=TIENDA.filter(function(x){return x.id===id})[0],c=costo(t);
+  if(S.luz<c)return;
+  gastar(c);S.it[id]++;Snd.play("compra");pintar();
+};
+$("btnRetiro").onclick=function(){
+  var m=$("retMsg"),w=S.val&&S.val.estado==="validada"?S.val.w:"";
+  if(!w){Snd.play("error");m.textContent="Primero valida tu dirección con el depósito de "+CFG.depMonto+" USDT.";return}
+  if(S.cred<CFG.minRetiro){Snd.play("error");m.textContent="Necesitas al menos "+CFG.minRetiro+" USDT. Ahora tienes "+f2(S.cred)+".";return}
+  var d=Datos.leer();
+  d.retiros.push({id:"r"+Date.now().toString(36),pid:S.id,alias:S.alias,monto:S.cred,wallet:w,fecha:new Date().toISOString(),estado:"pendiente"});
+  Datos.guardar(d);
+  Snd.play("enviado");m.textContent="Solicitud de "+f2(S.cred)+" USDT enviada. Estado: en aprobación. Cuando el administrador la pague, aquí dirá Pagado.";
+  S.cred=0;pintar();pintarRet();
+};
+setInterval(function(){if(S&&!enAdmin&&!tope()){if(S.it.auto>0)ganar(S.it.auto);var g=petGrillo();if(g>0)darBono(g)}},1000);
+
+/* ---------- Dibujo: campo nocturno y luciérnagas ---------- */
+var cv=$("campo"),cx=cv.getContext("2d"),W=0,H=0,bichos=[],ps=[],dedo=null,t0=0,fondoCv=document.createElement("canvas");
+function rng(q){return function(){q|=0;q=q+0x6D2B79F5|0;var t=Math.imul(q^q>>>15,1|q);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function sprite(col){var n=128,c=document.createElement("canvas");c.width=c.height=n;var g=c.getContext("2d"),r=g.createRadialGradient(64,64,0,64,64,64);
+  r.addColorStop(0,"rgba("+col+",1)");r.addColorStop(.18,"rgba("+col+",.55)");r.addColorStop(.45,"rgba("+col+",.14)");r.addColorStop(1,"rgba("+col+",0)");g.fillStyle=r;g.fillRect(0,0,n,n);return c}
+var SPR={v:sprite("170,255,110"),o:sprite("255,196,60"),l:sprite("255,250,225"),n:sprite("120,150,200"),p:sprite("255,130,210"),c:sprite("120,220,255")},polvo=[],tt=0;
+
+/* ---------- Luciérnagas raras (solo premium) y Mercado ---------- */
+/* v = USDT por venta, w = probabilidad %. Ajusta aquí la economía. Intervalo de aparición: CFG.joyaCada (segundos). */
+var JOYAS=[
+ {n:"Rocío",q:"Poco común",c:"120,235,255",ac:"#7be9ff",c2:"#d6fbff",w:55,v:.01},
+ {n:"Aurora",q:"Rara",c:"130,255,170",ac:"#8dffb4",c2:"#d9a8ff",w:25,v:.02},
+ {n:"Zafiro",q:"Muy rara",c:"90,150,255",ac:"#6aa5ff",c2:"#cfe0ff",w:12,v:.04},
+ {n:"Rubí",q:"Épica",c:"255,90,110",ac:"#ff6b81",c2:"#ffc2ca",w:6,v:.10},
+ {n:"Eclipse",q:"Legendaria",c:"255,215,110",ac:"#ffd36a",c2:"#fff3c4",w:1.7,v:.40},
+ {n:"Cósmica",q:"Mítica",c:"220,150,255",ac:"#d79bff",c2:"#ffffff",w:.3,v:1.5}
+];
+JOYAS.forEach(function(J){J.sp=sprite(J.c)});
+var joya=null,joyT=Date.now()+20000,hjPrev="",joyMsgT=0,JIMG={};
+function esPrem(){return !!S&&frascos().length>0}
+function precio(k){return r2(JOYAS[k].v*(CFG.joyaMult||1))}
+function sigJoya(){return Date.now()+CFG.joyaCada*1000*(.7+Math.random()*.6)}
+function pickJoya(){var r=Math.random()*100,a=0,i;for(i=0;i<JOYAS.length;i++){a+=JOYAS[i].w;if(r<a)return i}return 0}
+function mmss(ms){var q=Math.max(0,Math.ceil(ms/1000));return Math.floor(q/60)+":"+("0"+q%60).slice(-2)}
+var toastT=0;
+function toastJ(tit,sub,ac){var e=$("toast");e.style.setProperty("--ac",ac);e.innerHTML="<b>"+tit+"</b><span>"+sub+"</span>";e.classList.remove("oculto");e.style.animation="none";void e.offsetWidth;e.style.animation="";clearTimeout(toastT);toastT=setTimeout(function(){e.classList.add("oculto")},3400)}
+function flashCampo(ac){cv.style.setProperty("--ac",ac);cv.classList.remove("destello");void cv.offsetWidth;cv.classList.add("destello")}
+function avisoJoya(pr){var J=JOYAS[joya.k];Snd.play("rara");flashCampo(J.ac);toastJ("¡Apareció una luciérnaga rara!",pr?"Tócala 2 veces antes de que se escape":"Solo los jugadores premium pueden atraparla",J.ac)}
+function nuevaJoya(){var a=Math.random()*6.283;return{k:pickJoya(),x:W*(.15+Math.random()*.7),y:H*(.12+Math.random()*.4),vx:Math.cos(a)*40,vy:Math.sin(a)*40,a:a,f:0,hp:2,r:14,ini:Date.now(),fin:Date.now()+CFG.joyaVida*1000,ult:0}}
+function alaPath(g,k,s,r){
+ if(k===0)g.ellipse(-r*1.3,0,r*1.6,r*.75,0,0,6.283);
+ else if(k===1){g.moveTo(0,0);g.quadraticCurveTo(-r*1.6,s*r*1.5,-r*3.6,s*r*.3);g.quadraticCurveTo(-r*1.8,s*r*.2,0,0)}
+ else if(k===2){g.moveTo(0,0);g.lineTo(-r*1.1,s*r*1.1);g.lineTo(-r*2.7,s*r*.5);g.lineTo(-r*1.5,-s*r*.1);g.closePath()}
+ else if(k===3){g.moveTo(0,0);g.bezierCurveTo(-r*.6,s*r*1.6,-r*2.2,s*r*1.5,-r*3,s*r*.1);g.bezierCurveTo(-r*2,s*r*.7,-r*1,s*r*.3,0,0)}
+ else if(k===4)g.ellipse(-r*1.5,s*r*.6,r*2.1,r*.8,s*.45,0,6.283);
+ else{g.moveTo(0,0);g.lineTo(-r*.8,s*r*1.5);g.lineTo(-r*1.5,s*r*.5);g.lineTo(-r*2.8,s*r*1.1);g.lineTo(-r*2.1,s*r*.1);g.lineTo(-r*3.3,-s*r*.1);g.lineTo(-r*1.2,-s*r*.1);g.closePath()}
+}
+function dibJoya(g,k,x,y,r,a,f,br,tm,al){
+ var J=JOYAS[k],w=Math.sin(f*9),s,i,q,gr,lx=x,ly=y+r*1.05,tl=Math.sin(f*1.3)*.12,bl=Math.sin(f*.9)>.95?.15:1;
+ g.globalCompositeOperation="lighter";
+ g.globalAlpha=al*.7*br;g.drawImage(J.sp,lx-r*5.5,ly-r*5.5,r*11,r*11);
+ g.globalAlpha=al*.9*br;g.drawImage(J.sp,lx-r*2.2,ly-r*2.2,r*4.4,r*4.4);
+ g.globalCompositeOperation="source-over";g.globalAlpha=al;
+ g.save();g.translate(x,y);g.rotate(tl);
+ for(s=-1;s<=1;s+=2){g.save();g.translate(s*r*.35,-r*.1);g.scale(-s,1);g.rotate(.45+.3*w);
+  gr=g.createLinearGradient(0,0,-r*3,0);gr.addColorStop(0,"rgba("+J.c+",.7)");gr.addColorStop(1,"rgba("+J.c+",.08)");
+  g.fillStyle=gr;g.strokeStyle=J.c2;g.lineWidth=.9;g.beginPath();alaPath(g,k,-1,r);g.fill();g.stroke();g.restore()}
+ gr=g.createRadialGradient(0,r*1.05,0,0,r*1.05,r*.8);gr.addColorStop(0,"#fff");gr.addColorStop(.5,"rgba("+J.c+",1)");gr.addColorStop(1,"rgba("+J.c+",.6)");
+ g.fillStyle=gr;g.beginPath();g.arc(0,r*1.05,r*.78,0,6.283);g.fill();
+ g.fillStyle="#2a1d3a";g.beginPath();g.ellipse(0,r*.4,r*.5,r*.38,0,0,6.283);g.fill();
+ g.strokeStyle="#2a1d3a";g.lineWidth=1.3;g.beginPath();g.moveTo(-r*.35,-r*.95);g.quadraticCurveTo(-r*.7,-r*1.5,-r*.95,-r*1.45);g.moveTo(r*.35,-r*.95);g.quadraticCurveTo(r*.7,-r*1.5,r*.95,-r*1.45);g.stroke();
+ g.fillStyle=J.c2;g.beginPath();g.arc(-r*.95,-r*1.45,r*.16,0,6.283);g.arc(r*.95,-r*1.45,r*.16,0,6.283);g.fill();
+ gr=g.createRadialGradient(-r*.3,-r*.65,r*.1,0,-r*.2,r*1.05);gr.addColorStop(0,"#fffaf0");gr.addColorStop(1,"#ffe2bd");
+ g.fillStyle=gr;g.beginPath();g.arc(0,-r*.2,r*.95,0,6.283);g.fill();
+ for(s=-1;s<=1;s+=2){g.fillStyle="#2a1838";g.beginPath();g.ellipse(s*r*.36,-r*.15,r*.19,r*.26*bl,0,0,6.283);g.fill();
+  g.fillStyle="#fff";g.beginPath();g.arc(s*r*.36-r*.06,-r*.26,r*.08,0,6.283);g.arc(s*r*.36+r*.05,-r*.06,r*.04,0,6.283);g.fill();
+  g.fillStyle="rgba(255,120,150,.6)";g.beginPath();g.ellipse(s*r*.64,r*.14,r*.18,r*.11,0,0,6.283);g.fill()}
+ g.strokeStyle="#7a3b3b";g.lineWidth=1.1;g.beginPath();g.arc(0,r*.04,r*.17,.15*Math.PI,.85*Math.PI);g.stroke();
+ if(k>=2){g.fillStyle=J.c2;g.strokeStyle="rgba("+J.c+",1)";g.lineWidth=1;g.beginPath();g.moveTo(0,-r*1.38);g.lineTo(r*.2,-r*1.14);g.lineTo(0,-r*.9);g.lineTo(-r*.2,-r*1.14);g.closePath();g.fill();g.stroke()}
+ g.restore();
+ g.globalCompositeOperation="lighter";g.lineWidth=1.5;
+ if(k===0){for(i=0;i<3;i++){g.strokeStyle="rgba("+J.c+",.7)";g.beginPath();g.arc(x+Math.cos(tm*1.3+i*2.1)*r*2.4,y+Math.sin(tm*1.7+i*2.1)*r*2.2,r*.3+i*.6,0,6.283);g.stroke()}}
+ else if(k===1){q=a+Math.PI;for(i=1;i<=5;i++){g.fillStyle="rgba("+(i%2?J.c:"217,168,255")+","+(.8-i*.12)+")";g.beginPath();g.arc(x+Math.cos(q)*r*(2.5+i*.9)-Math.sin(q)*Math.sin(tm*4+i)*r*.9,y+Math.sin(q)*r*(2.5+i*.9)+Math.cos(q)*Math.sin(tm*4+i)*r*.9,r*(.42-i*.05),0,6.283);g.fill()}}
+ else if(k===2){g.strokeStyle=J.c2;g.beginPath();for(i=0;i<2;i++){q=tm*.8+i*1.5708;g.moveTo(lx-Math.cos(q)*r*2.4,ly-Math.sin(q)*r*2.4);g.lineTo(lx+Math.cos(q)*r*2.4,ly+Math.sin(q)*r*2.4)}g.stroke()}
+ else if(k===3){g.fillStyle="rgba(255,150,90,.9)";for(i=0;i<4;i++){q=tm*2.2+i*1.5708;g.beginPath();g.arc(x+Math.cos(q)*r*2.6,y+Math.sin(q)*r*2.6,r*.28,0,6.283);g.fill()}}
+ else if(k===4){g.strokeStyle="rgba(255,243,196,.85)";g.lineWidth=2.5;g.beginPath();g.arc(x,y+r*.3,r*2.7,0,6.283);g.stroke();g.strokeStyle="rgba("+J.c+",.35)";g.lineWidth=6;g.beginPath();g.arc(x,y+r*.3,r*3.1,0,6.283);g.stroke()}
+ else{for(i=0;i<8;i++){q=tm*.7+i*.7854;g.strokeStyle="hsla("+((i*45+tm*70)%360)+",100%,75%,.65)";g.beginPath();g.moveTo(x,y+r*.3);g.lineTo(x+Math.cos(q)*r*(3.2+Math.sin(tm*3+i)),y+r*.3+Math.sin(q)*r*(3.2+Math.sin(tm*3+i)));g.stroke()}}
+ g.globalCompositeOperation="source-over";g.globalAlpha=1;
+}
+function joyaImg(k){if(!JIMG[k]){var c=document.createElement("canvas");c.width=c.height=128;dibJoya(c.getContext("2d"),k,64,66,11,-.5,.35,1,1.2,1);JIMG[k]=c.toDataURL()}return JIMG[k]}
+function candado(x,y,al){cx.save();cx.globalAlpha=al;cx.fillStyle="rgba(10,10,36,.8)";cx.beginPath();cx.arc(x,y,13,0,6.283);cx.fill();cx.strokeStyle="#ffd36a";cx.lineWidth=2;cx.stroke();cx.fillStyle="#ffd36a";cx.fillRect(x-5,y-1,10,8);cx.beginPath();cx.arc(x,y-1,4,Math.PI,0);cx.stroke();cx.restore()}
+function joyaCuadro(dt,t){
+ var now=Date.now(),pr=esPrem(),j,dx,dy,d2,dd,sp,al,tx;
+ if(!joya&&now>=joyT){joya=nuevaJoya();avisoJoya(pr)}
+ if(joya){j=joya;
+  if(now>=j.fin){var JE=JOYAS[j.k];toastJ("Se escapó una "+JE.n,pr?"Valía "+f2(precio(j.k))+" USDT. ¡La próxima no la dejes ir!":"Valía "+f2(precio(j.k))+" USDT. Con un frasco premium sí la atrapas",JE.ac);joya=null;joyT=sigJoya()}
+  else{
+   j.f+=dt*3;
+   if(dedo){dx=j.x-dedo[0];dy=j.y-dedo[1];d2=dx*dx+dy*dy;if(d2<14400&&d2>1){dd=Math.sqrt(d2);j.vx+=dx/dd*240*dt;j.vy+=dy/dd*240*dt}}
+   j.vx+=(Math.random()-.5)*90*dt;j.vy+=(Math.random()-.5)*90*dt;
+   sp=Math.sqrt(j.vx*j.vx+j.vy*j.vy);if(sp>95){j.vx*=95/sp;j.vy*=95/sp}
+   j.x+=j.vx*dt;j.y+=j.vy*dt+Math.cos(j.f*.8)*.4;
+   if(j.x<20||j.x>W-20){j.vx*=-1;j.x=Math.max(20,Math.min(W-20,j.x))}
+   if(j.y<20||j.y>H*.85){j.vy*=-1;j.y=Math.max(20,Math.min(H*.85,j.y))}
+   dd=Math.atan2(j.vy,j.vx)-j.a;dd=Math.atan2(Math.sin(dd),Math.cos(dd));j.a+=dd*Math.min(1,dt*4);
+   al=Math.max(0,Math.min(1,(now-j.ini)/600,(j.fin-now)/2000));
+   dibJoya(cx,j.k,j.x,j.y,j.r*1.4,j.a,j.f,.7+.3*Math.sin(j.f*1.6),t/1000,al);
+   if(!pr)candado(j.x,j.y-j.r*3.4,al);
+  }
+ }
+ tx=joya?(pr?"¡Rara en el campo!":"Solo premium la atrapa"):(pr?"Próxima rara en "+mmss(joyT-now):"Raras: solo premium");
+ if(tx!==hjPrev){hjPrev=tx;$("hJoya").textContent=tx;var hj=$("hoyJoya");if(hj)hj.textContent=tx}
+}
+function joyaToque(px,py){
+ if(!joya)return;
+ var dx=joya.x-px,dy=joya.y-py,rr=radio()+22,now=Date.now();
+ if(dx*dx+dy*dy>rr*rr)return;
+ if(!esPrem()){if(now-joyMsgT>3500){joyMsgT=now;chispas(joya.x,joya.y,false,"Solo premium");msg("Las luciérnagas raras solo las atrapan jugadores con un frasco premium activo.")}return}
+ if(now-joya.ult<380)return;joya.ult=now;joya.hp--;
+ if(joya.hp>0){Snd.play("golpe");chispas(joya.x,joya.y,true,"¡Una más!");return}
+ var k=joya.k;S.joy=S.joy||[];S.joy.push({t:k,ts:now});S.atr++;
+ Snd.play("rara_atrapa");chispas(joya.x,joya.y,true,"¡"+JOYAS[k].n+"!");chispas(joya.x,joya.y,true,"");
+ flashCampo(JOYAS[k].ac);toastJ("¡Luciérnaga "+JOYAS[k].n+" atrapada!",JOYAS[k].q+" · vale "+f2(precio(k))+" USDT · véndela en el Mercado",JOYAS[k].ac);
+ joya=null;joyT=sigJoya();pintar();
+}
+function filaJ(k,n,vend){var J=JOYAS[k];
+ return '<div class="cart tex" style="--ac:'+J.ac+'"><div class="cart-ic"><img src="'+joyaImg(k)+'" alt=""></div><div><div class="cart-n"><b>Luciérnaga '+J.n+'</b><span class="cart-lv">'+J.q+'</span></div><div class="mute">'+(vend?'Tienes '+n:'Probabilidad '+J.w+'%')+' · Vale '+f2(precio(k))+' USDT</div></div>'+(vend?'<button class="buy" data-v="'+k+'">Vender 1 · '+f2(precio(k))+' USDT</button>':'')+'</div>'}
+function pintarMer(){
+ var inv=S.joy||[],cnt=JOYAS.map(function(){return 0}),tot=0,h,hay=false;
+ inv.forEach(function(j){cnt[j.t]++;tot=r2(tot+precio(j.t))});
+ h='<section class="tienda-hero tex"><div><div class="mute">Tus luciérnagas raras</div><div class="hero-n"><b>'+inv.length+'</b></div><div class="mute">Valen '+f2(tot)+' USDT</div></div><p class="mute">Atrápalas en el campo y véndelas aquí. Cuanto más rara, más vale.</p></section>';
+ if(!esPrem())h+='<div class="panel aviso">Solo los jugadores con un frasco premium activo pueden atrapar luciérnagas raras.<div class="btns"><button type="button" data-ir="1">Ver frascos premium</button></div></div>';
+ h+='<div class="mute msgf" id="merMsg" role="status"></div>';
+ if(inv.length>1)h+='<button type="button" data-todas="1" style="width:100%">Vender todas · '+f2(tot)+' USDT</button>';
+ h+='<div class="sec-t">En tu frasco</div>';
+ JOYAS.forEach(function(J,k){if(cnt[k]){hay=true;h+=filaJ(k,cnt[k],true)}});
+ if(!hay)h+='<p class="mute">Aún no tienes ninguna. Aparece una cada pocos minutos mientras juegas.</p>';
+ h+='<div class="sec-t">Colección y valores</div>'+JOYAS.map(function(J,k){return filaJ(k,0,false)}).join("");
+ $("merPanel").innerHTML=h;
+}
+function vender(k){
+ var d=Datos.leer(),inv=S.joy||[],keep=[],tot=0,n=0,hecho=false;
+ inv.forEach(function(j){var v=precio(j.t),m=k<0||j.t===k;
+  if(m&&!(k>=0&&hecho)&&d.fondo>=v){d.fondo=r2(d.fondo-v);tot=r2(tot+v);n++;hecho=true}else keep.push(j)});
+ if(!n)return msgf("merMsg","El fondo de recompensas no alcanza para esa venta ahora mismo.");
+ S.joy=keep;S.cred=r2(S.cred+tot);S.usdt=r2(S.usdt+tot);
+ Datos.guardar(d);Snd.play("oro");pintar();pintarMer();
+ msgf("merMsg","Vendiste "+n+(n===1?" luciérnaga":" luciérnagas")+" por "+f2(tot)+" USDT. Ya están en tu saldo.",1);
+}
+$("merPanel").onclick=function(e){var b=e.target.closest?e.target.closest("button"):null;if(!b)return;
+ if(b.hasAttribute("data-todas"))return vender(-1);
+ if(b.hasAttribute("data-v"))return vender(+b.getAttribute("data-v"));
+ if(b.hasAttribute("data-ir"))ir("premium")};
+function navBar(t){var mas=["swap","premium","ref","rul","masc","eq","deposito","validar","retiros"].indexOf(t)>=0;
+ document.querySelectorAll(".bnav button").forEach(function(b){var x=b.getAttribute("data-b");b.setAttribute("aria-current",x===t||(x==="mas"&&mas))})}
+document.querySelector(".bnav").onclick=function(e){var b=e.target.closest?e.target.closest("button"):null;if(!b)return;var t=b.getAttribute("data-b");
+ if(t==="mas"){abrirMenu();return}Snd.play("nav");ir(t)};
+var guiaN=-1;
+var GUIA=[["¡Atrapa tu primera luciérnaga!","Desliza el dedo sobre la que tiene el aro brillante."],
+ ["¡Bien! Ahora mejora tu red","Con la luz que juntas compras mejoras en la Tienda: una red más grande, un auto-recolector y más."],
+ ["Las raras valen USDT","De vez en cuando aparece una luciérnaga grande y rara. Con un frasco premium la atrapas y la vendes en el Mercado. Cuanto más rara, más vale."],
+ ["Mira tu lista de Hoy","Debajo del campo está la tarjeta Hoy: ruleta diaria, tu límite de USDT y la próxima rara. Revísala cada día."]];
+function guiaPaso(n){
+ var g=$("guia"),T=GUIA[n],i,pts="",b;
+ guiaN=n;g.classList.remove("oculto");g.classList.toggle("fondo",n>0);
+ for(i=0;i<GUIA.length;i++)pts+='<i'+(i===n?' class="on"':'')+'></i>';
+ b=n===0?'<button type="button" class="sec" data-gs="x">Saltar guía</button>':n<3?'<button type="button" class="sec" data-gs="x">Saltar</button><button type="button" data-gs="n">Siguiente</button>':'<button type="button" data-gs="x">¡A jugar!</button>';
+ g.innerHTML='<div class="guia-c"><div class="guia-pts" aria-hidden="true">'+pts+'</div><h2>'+T[0]+'</h2>'+(n===2?'<div class="guia-arts"><img src="'+joyaImg(0)+'" alt=""><img src="'+joyaImg(3)+'" alt=""><img src="'+joyaImg(5)+'" alt=""></div>':'')+'<p class="mute" style="font-size:.95rem">'+T[1]+'</p><div class="guia-b">'+b+'</div></div>';
+}
+function guiaFin(){guiaN=-1;$("guia").classList.add("oculto");bichos=bichos.filter(function(b){return !b.prac});if(S){S.guia=1;guardar()}}
+function guiaIni(){
+ var b;$("guia").classList.add("oculto");guiaN=-1;
+ if(!S||S.guia)return;
+ if(S.atr>0||S.luzTot>0){S.guia=1;guardar();return}
+ b=crear("n");b.x=(W||300)*.5;b.y=(H||400)*.4;b.vx=14;b.vy=-8;b.r=9;b.oro=false;b.prac=true;bichos.push(b);
+ guiaPaso(0);
+}
+function aroGuia(b){cx.save();cx.globalCompositeOperation="lighter";cx.strokeStyle="rgba(255,240,170,.85)";cx.lineWidth=2;cx.beginPath();cx.arc(b.x,b.y,26+6*Math.sin(tt/200),0,6.283);cx.stroke();
+ cx.globalCompositeOperation="source-over";cx.font="700 13px Figtree,system-ui,sans-serif";cx.textAlign="center";cx.fillStyle="#fff6c7";cx.fillText("¡Tócala!",b.x,b.y-40);cx.restore()}
+$("guia").onclick=function(e){var b=e.target.closest?e.target.closest("button"):null;if(!b)return;Snd.play("nav");
+ if(b.getAttribute("data-gs")==="n")guiaPaso(guiaN+1);else guiaFin()};
+var hoyPrev="";
+function hastaManana(){var n=new Date(),ms=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()+1)-n.getTime(),h=Math.floor(ms/36e5);return h>=1?h+" h":Math.max(1,Math.ceil(ms/6e4))+" min"}
+function pintarHoy(){
+ var hoy=hoyStr(),rl=S.rul===hoy,tp=topeJ(),uh=S.hoy||0,lim=uh>=tp-.0001,pu=tp>0?Math.min(100,uh/tp*100):0,
+     bo=S.bonoDiaStr===hoy?(S.bonoHoy||0):0,bm=CFG.bonoDia||1,pb=Math.min(100,bo/bm*100),pr=esPrem(),h;
+ function f(go,ok,tit,sub,pc){return '<button type="button" class="hoy-f'+(ok?' hecho':'')+'" data-g="'+go+'"><i class="hoy-ck" aria-hidden="true"></i><span class="hoy-t"><b>'+tit+'</b><small>'+sub+'</small>'+(pc==null?'':'<span class="hoy-b"><i style="width:'+pc+'%"></i></span>')+'</span><span class="hoy-go" aria-hidden="true">›</span></button>'}
+ h=f("rul",rl,"Ruleta diaria",rl?"Ya la giraste · vuelve en "+hastaManana():"¡Lista para girar!")+
+  f("premium",lim,"Límite de USDT de hoy",lim?"Alcanzaste el tope. Con un frasco premium lo subes":f2(uh)+" / "+f2(tp)+" USDT",pu)+
+  f("tienda",bo>=bm,"Luz de bono de hoy",bo>=bm?"Llegaste al máximo de hoy":Math.floor(bo)+" / "+bm+" luz",pb)+
+  f(pr?"mercado":"premium",false,"Luciérnaga rara",'<span id="hoyJoya">'+esc(hjPrev)+'</span>');
+ if(h!==hoyPrev){hoyPrev=h;$("hoyL").innerHTML=h}
+ $("hoyN").classList.toggle("oculto",rl);
+}
+$("hoyL").onclick=function(e){var b=e.target.closest?e.target.closest("button"):null;if(b){Snd.play("nav");ir(b.getAttribute("data-g"))}};
+(function(){var hc=$("hoyCard");try{if(localStorage.getItem("luc_hoy")==="0")hc.open=false}catch(e){}
+ hc.addEventListener("toggle",function(){try{localStorage.setItem("luc_hoy",hc.open?"1":"0")}catch(e){}})})();
+var grano=(function(){var c=document.createElement("canvas");c.width=c.height=128;var g=c.getContext("2d"),im=g.createImageData(128,128),i,v;
+  for(i=0;i<im.data.length;i+=4){v=Math.random()*255;im.data[i]=im.data[i+1]=im.data[i+2]=v;im.data[i+3]=24}g.putImageData(im,0,0);return c})();
+function medir(){
+  var r=cv.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,3);
+  if(!r.width){W=0;return}
+  W=r.width;H=r.height;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0);
+  fondoCv.width=cv.width;fondoCv.height=cv.height;
+  var g=fondoCv.getContext("2d"),R=rng(7),i,x,y,c;g.setTransform(d,0,0,d,0,0);
+  c=g.createLinearGradient(0,0,0,H);c.addColorStop(0,"#04061a");c.addColorStop(.35,"#0e1238");c.addColorStop(.62,"#1f1a4a");c.addColorStop(.8,"#27405a");c.addColorStop(1,"#10242a");
+  g.fillStyle=c;g.fillRect(0,0,W,H);
+  g.save();g.translate(W*.35,H*.3);g.rotate(-.5);
+  c=g.createLinearGradient(0,-H*.18,0,H*.18);c.addColorStop(0,"rgba(150,140,255,0)");c.addColorStop(.5,"rgba(170,160,255,.16)");c.addColorStop(1,"rgba(150,140,255,0)");
+  g.fillStyle=c;g.fillRect(-W,-H*.18,W*2,H*.36);
+  for(i=0;i<240;i++){g.fillStyle="rgba(230,225,255,"+R()*.35+")";g.fillRect((R()-.5)*W*1.6,(R()-.5)*H*.3*(.4+R()),1,1)}
+  g.restore();
+  for(i=0;i<95;i++){x=R()*W;y=R()*H*.6;var q=R();
+    g.fillStyle="rgba("+(q>.8?"255,214,170":q<.2?"175,205,255":"246,242,255")+","+(.25+R()*.7)+")";
+    g.beginPath();g.arc(x,y,q>.93?1.4:.5+q*.7,0,6.283);g.fill();
+    if(q>.93){g.globalAlpha=.55;g.drawImage(SPR.l,x-10,y-10,20,20);g.globalAlpha=1}}
+  var mx=W*.8,my=H*.16,mr=Math.min(W,H)*.075;
+  [[7,.1],[4,.16],[2.4,.28]].forEach(function(h){c=g.createRadialGradient(mx,my,mr*.8,mx,my,mr*h[0]);c.addColorStop(0,"rgba(255,244,214,"+h[1]+")");c.addColorStop(1,"rgba(255,244,214,0)");g.fillStyle=c;g.fillRect(0,0,W,H)});
+  c=g.createRadialGradient(mx-mr*.3,my-mr*.3,mr*.1,mx,my,mr);c.addColorStop(0,"#fffbea");c.addColorStop(.7,"#f1e6c4");c.addColorStop(1,"#cfc09a");
+  g.fillStyle=c;g.beginPath();g.arc(mx,my,mr,0,6.283);g.fill();
+  g.save();g.beginPath();g.arc(mx,my,mr,0,6.283);g.clip();
+  for(i=0;i<10;i++){var cr=mr*(.08+R()*.2),ax=mx+(R()-.5)*mr*1.5,ay=my+(R()-.5)*mr*1.5;c=g.createRadialGradient(ax,ay,0,ax,ay,cr);c.addColorStop(0,"rgba(150,135,100,.4)");c.addColorStop(1,"rgba(150,135,100,0)");g.fillStyle=c;g.fillRect(ax-cr,ay-cr,cr*2,cr*2)}
+  c=g.createRadialGradient(mx+mr*.5,my+mr*.3,mr*.6,mx+mr*.5,my+mr*.3,mr*1.4);c.addColorStop(0,"rgba(0,0,0,0)");c.addColorStop(1,"rgba(20,20,50,.45)");g.fillStyle=c;g.fillRect(mx-mr,my-mr,mr*2,mr*2);
+  g.restore();
+  function cresta(base,amp,col,haze,seed){var Q=rng(seed),f1=60+Q()*40,f2=22+Q()*10,ph=Q()*9;
+    c=g.createLinearGradient(0,base-amp*1.6,0,H);c.addColorStop(0,col);c.addColorStop(1,haze);g.fillStyle=c;g.beginPath();g.moveTo(0,H);
+    for(x=0;x<=W+8;x+=8)g.lineTo(x,base+Math.sin(x/f1+ph)*amp+Math.sin(x/f2+ph*2)*amp*.35+Math.sin(x/7+ph)*amp*.06);
+    g.lineTo(W,H);g.fill()}
+  function bruma(y0,hh,a){c=g.createLinearGradient(0,y0,0,y0+hh);c.addColorStop(0,"rgba(130,160,210,0)");c.addColorStop(.5,"rgba(130,160,210,"+a+")");c.addColorStop(1,"rgba(130,160,210,0)");g.fillStyle=c;g.fillRect(0,y0,W,hh)}
+  function pinos(base,hh,col,paso,seed){var Q=rng(seed),h,w;g.fillStyle=col;
+    for(x=-6;x<W+10;x+=paso*(.7+Q()*.7)){h=hh*(.55+Q()*.9);w=h*.26;g.beginPath();g.moveTo(x-w,base+4);g.lineTo(x-w*.45,base-h*.4);g.lineTo(x-w*.75,base-h*.4);g.lineTo(x-w*.3,base-h*.72);g.lineTo(x,base-h);g.lineTo(x+w*.3,base-h*.72);g.lineTo(x+w*.75,base-h*.4);g.lineTo(x+w*.45,base-h*.4);g.lineTo(x+w,base+4);g.fill()}}
+  cresta(H*.6,H*.07,"#2a3a68","#38507a",3);bruma(H*.58,H*.14,.14);
+  cresta(H*.68,H*.06,"#1b2a52","#2a4466",5);bruma(H*.66,H*.12,.12);
+  pinos(H*.74,H*.09,"#0f1f3a",9,11);
+  cresta(H*.77,H*.04,"#122340","#1a3548",9);
+  c=g.createLinearGradient(0,H*.76,0,H);c.addColorStop(0,"#17302c");c.addColorStop(.5,"#0c1d1b");c.addColorStop(1,"#050c0b");
+  g.fillStyle=c;g.beginPath();g.moveTo(0,H);for(x=0;x<=W+10;x+=10)g.lineTo(x,H*.8+Math.sin(x/70)*10+Math.sin(x/23)*3);g.lineTo(W,H);g.fill();
+  bruma(H*.76,H*.12,.12);
+  g.globalCompositeOperation="lighter";
+  for(i=0;i<9;i++){var br=12+R()*28;g.globalAlpha=.05+R()*.07;g.drawImage(R()>.5?SPR.v:SPR.l,R()*W-br,H*(.55+R()*.4)-br,br*2,br*2)}
+  g.globalAlpha=1;g.globalCompositeOperation="source-over";
+  [["#0a1c18",.17,3,1.7],["#06120f",.12,4,2.3],["#030807",.09,6,3.2]].forEach(function(cp,k){
+    g.lineCap="round";
+    for(x=-4;x<W+6;x+=cp[2]){var h=H*cp[1]*(.4+R()*1.1),l=(R()-.5)*18;
+      g.strokeStyle=cp[0];g.lineWidth=cp[3];g.beginPath();g.moveTo(x,H+2);g.quadraticCurveTo(x+l*.3,H-h*.6,x+l,H-h);g.stroke();
+      if(R()<.35){g.strokeStyle="rgba(150,205,175,"+(.1+k*.05)+")";g.lineWidth=.6;g.beginPath();g.moveTo(x+cp[3]*.4,H+2);g.quadraticCurveTo(x+l*.3+cp[3]*.4,H-h*.6,x+l+cp[3]*.4,H-h);g.stroke()}}
+    if(k===1){g.globalCompositeOperation="lighter";for(i=0;i<26;i++){g.globalAlpha=.3+R()*.5;g.drawImage(SPR.l,R()*W-3,H-R()*H*.16-3,6,6)}g.globalAlpha=1;g.globalCompositeOperation="source-over"}
+  });
+  c=g.createRadialGradient(W/2,H*.55,Math.min(W,H)*.35,W/2,H*.55,Math.max(W,H)*.8);c.addColorStop(0,"rgba(0,0,0,0)");c.addColorStop(1,"rgba(2,3,12,.62)");g.fillStyle=c;g.fillRect(0,0,W,H);
+  g.save();g.setTransform(1,0,0,1,0,0);g.fillStyle=g.createPattern(grano,"repeat");g.fillRect(0,0,fondoCv.width,fondoCv.height);g.restore();
+  polvo=[];for(i=0;i<30;i++)polvo.push({x:Math.random()*W,y:Math.random()*H*.9,vx:(Math.random()-.5)*8,vy:-2-Math.random()*6,s:3+Math.random()*5,f:Math.random()*6});
+}
+function crear(tipo){
+  var r=Math.random()*100,t="n";
+  if(tipo)t=tipo;else if(r<CFG.probGig)t="gig";else if(r<CFG.probGig+CFG.probHuid)t="hui";
+  var oro=t==="n"&&Math.random()*100<CFG.probOro,k=t==="hui"?2.2:t==="gig"?.5:1,vx=(Math.random()-.5)*50*k,vy=(Math.random()-.5)*50*k;
+  return{x:Math.random()*W,y:Math.random()*H*.8,vx:vx,vy:vy,a:Math.atan2(vy,vx),f:Math.random()*6,oro:oro,tipo:t,hp:t==="gig"?Math.max(1,Math.floor(CFG.gigToques)):1,r:t==="gig"?13:t==="hui"?4.5:oro?7.5:5.5}
+}
+function crearEnjambre(){
+  var bx=Math.random()*W,by=Math.random()*H*.7,vx=(Math.random()-.5)*40,vy=(Math.random()-.5)*40,i;
+  for(i=0;i<4;i++)bichos.push({x:bx+(Math.random()-.5)*44,y:by+(Math.random()-.5)*44,vx:vx+(Math.random()-.5)*8,vy:vy+(Math.random()-.5)*8,a:Math.atan2(vy,vx),f:Math.random()*6,oro:false,tipo:"n",hp:1,r:5.5})
+}
+function radio(){return (CFG.radio+S.it.tap*6+petPolilla())*(pod("red")?1.8:1)}
+function fisica(b,dt){
+  var ax=0,ay=0;
+  if(b.tipo==="hui"&&dedo){var dx=b.x-dedo[0],dy=b.y-dedo[1],d2=dx*dx+dy*dy;if(d2<16900&&d2>1){var d=Math.sqrt(d2);ax+=dx/d*260;ay+=dy/d*260}}
+  if(pod("iman")){var tx=dedo?dedo[0]:W/2,ty=dedo?dedo[1]:H*.45,ex=tx-b.x,ey=ty-b.y,e=Math.sqrt(ex*ex+ey*ey)||1;ax+=ex/e*90;ay+=ey/e*90}
+  b.vx+=ax*dt;b.vy+=ay*dt;
+  var mx=b.tipo==="hui"?130:(pod("iman")?80:60),sp=Math.sqrt(b.vx*b.vx+b.vy*b.vy);
+  if(sp>mx){b.vx*=mx/sp;b.vy*=mx/sp}
+}
+function hpPips(b){
+  var i,n=Math.max(1,Math.floor(CFG.gigToques)),w=n*9;
+  for(i=0;i<n;i++){cx.fillStyle=i<b.hp?"#9fe8ff":"rgba(255,255,255,.22)";cx.beginPath();cx.arc(b.x-w/2+4.5+i*9,b.y-b.r*2.6,3,0,6.283);cx.fill()}
+}
+function chispas(x,y,oro,txt){
+  var i,a,v;
+  for(i=0;i<24;i++){a=Math.random()*6.283;v=30+Math.random()*130;ps.push({k:"c",x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-20,t:.9,T:.9,oro:oro,s:3+Math.random()*5})}
+  ps.push({k:"a",x:x,y:y,t:.45,T:.45,oro:oro});
+  ps.push({k:"x",x:x,y:y,vy:-40,t:1,T:1,oro:oro,txt:txt||("+"+(oro?CFG.valorOro:CFG.valor)+" luz")});
+}
+function tope(){if(!S)return false;if(S.dia!==hoyStr()){S.dia=hoyStr();S.hoy=0}return S.hoy>=topeJ()-0.0001}
+var limPrev=false;
+$("btnPremLim").onclick=function(){ir("premium")};
+function capturar(b){
+  var n,bo=0,now=Date.now();
+  if(b.tipo==="gig"){n=CFG.gigN;bo=CFG.gigB}else if(b.tipo==="hui"){n=CFG.huidN;bo=CFG.huidB}else n=b.oro?CFG.valorOro:CFG.valor;
+  if(now-comboT>CFG.comboVentana+petBuho())comboN=0;
+  comboN++;comboT=now;
+  var ex=bo+n*(comboMult()-1)+(pod("doble")?n:0)+n*(petChispa()+eqBon),ok=darBono(ex);
+  Snd.play(b.oro||b.tipo==="gig"?"oro":"atrapa");
+  if(comboN%Math.max(1,CFG.comboPaso)===0)Snd.play("combo");
+  chispas(b.x,b.y,b.oro||b.tipo==="gig","+"+n+" luz"+(ok>=1?" +"+Math.floor(ok)+" bono":""));
+  S.atr++;ganar(n);
+}
+function atrapar(px,py){
+  joyaToque(px,py);
+  if(tope())return;
+  for(var i=bichos.length-1;i>=0;i--){var b=bichos[i],dx=b.x-px,dy=b.y-py,rr=radio()+(b.tipo==="gig"?10:0);
+    if(dx*dx+dy*dy<=rr*rr){
+      if(b.tipo==="gig"){var nw=Date.now();if(nw-(b.ult||0)<380)continue;b.ult=nw;b.hp--;if(b.hp>0){Snd.play("golpe");chispas(b.x,b.y,false,"¡"+b.hp+"!");continue}}
+      bichos.splice(i,1);capturar(b);if(b.prac&&guiaN===0)guiaPaso(1)}}
+}
+function pos(e){var r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]}
+cv.addEventListener("pointerdown",function(e){if(!S)return;dedo=pos(e);atrapar(dedo[0],dedo[1])});
+cv.addEventListener("pointermove",function(e){if(!S||!dedo)return;dedo=pos(e);atrapar(dedo[0],dedo[1])});
+["pointerup","pointercancel","pointerleave"].forEach(function(n){cv.addEventListener(n,function(){dedo=null})});
+window.addEventListener("resize",function(){if(S&&!$("t_jugar").classList.contains("oculto"))medir()});
+
+function luciernaga(b,br){
+  var r=b.r*1.5,col=b.oro?"255,200,70":b.tipo==="hui"?"255,130,210":b.tipo==="gig"?"120,220,255":"190,255,120",sp=b.oro?SPR.o:b.tipo==="hui"?SPR.p:b.tipo==="gig"?SPR.c:SPR.v,k,s,gr,w=Math.sin(b.f*9),
+      lx=b.x-Math.cos(b.a)*r*1.4,ly=b.y-Math.sin(b.a)*r*1.4;
+  cx.globalCompositeOperation="lighter";cx.lineCap="round";
+  if(b.tr&&b.tr.length>1)for(k=1;k<b.tr.length;k++){cx.strokeStyle="rgba("+col+","+.25*br*k/b.tr.length+")";cx.lineWidth=r*.55*k/b.tr.length;cx.beginPath();cx.moveTo(b.tr[k-1][0],b.tr[k-1][1]);cx.lineTo(b.tr[k][0],b.tr[k][1]);cx.stroke()}
+  cx.globalAlpha=.6*br;cx.drawImage(sp,lx-r*7,ly-r*7,r*14,r*14);
+  cx.globalAlpha=.9*br;cx.drawImage(sp,lx-r*2.2,ly-r*2.2,r*4.4,r*4.4);
+  cx.globalCompositeOperation="source-over";cx.globalAlpha=1;
+  cx.save();cx.translate(b.x,b.y);cx.rotate(b.a);
+  for(s=-1;s<=1;s+=2){cx.save();cx.translate(r*.1,s*r*.3);cx.rotate(s*(.5+.45*w));
+    gr=cx.createLinearGradient(0,0,-r*2.4,0);gr.addColorStop(0,"rgba(235,245,255,.38)");gr.addColorStop(1,"rgba(235,245,255,.04)");
+    cx.fillStyle=gr;cx.strokeStyle="rgba(235,245,255,.5)";cx.lineWidth=.5;cx.beginPath();cx.ellipse(-r*1.2,0,r*1.35,r*.5,0,0,6.283);cx.fill();cx.stroke();
+    cx.beginPath();cx.moveTo(0,0);cx.lineTo(-r*2.4,0);cx.moveTo(-r*.6,0);cx.lineTo(-r*1.5,s*r*.3);cx.stroke();cx.restore()}
+  cx.strokeStyle="#1a1210";cx.lineWidth=.7;cx.beginPath();
+  for(k=0;k<3;k++){var px=r*(.9-k*.6);cx.moveTo(px,0);cx.lineTo(px+r*.25*(1-k),r*.95);cx.moveTo(px,0);cx.lineTo(px+r*.25*(1-k),-r*.95)}cx.stroke();
+  gr=cx.createLinearGradient(0,-r*.62,0,r*.62);gr.addColorStop(0,"#44322a");gr.addColorStop(.5,"#251913");gr.addColorStop(1,"#110b08");
+  cx.fillStyle=gr;cx.beginPath();cx.ellipse(-r*.15,0,r*1.35,r*.62,0,0,6.283);cx.fill();
+  cx.strokeStyle="rgba(255,255,255,.12)";cx.lineWidth=.6;cx.beginPath();cx.moveTo(r*.9,0);cx.lineTo(-r*1.1,0);cx.stroke();
+  cx.fillStyle="rgba(255,240,220,.24)";cx.beginPath();cx.ellipse(-r*.1,-r*.3,r*.95,r*.12,0,0,6.283);cx.fill();
+  gr=cx.createRadialGradient(-r*1.3,0,0,-r*1.3,0,r*.9);gr.addColorStop(0,"rgba(255,255,240,1)");gr.addColorStop(.4,"rgba("+col+","+(.6+.4*br)+")");gr.addColorStop(1,"rgba("+col+",0)");
+  cx.fillStyle=gr;cx.beginPath();cx.ellipse(-r*1.3,0,r*.85,r*.55,0,0,6.283);cx.fill();
+  gr=cx.createLinearGradient(0,-r*.6,0,r*.6);gr.addColorStop(0,"#d4623f");gr.addColorStop(1,"#8f2f1d");
+  cx.fillStyle=gr;cx.beginPath();cx.ellipse(r*1.05,0,r*.5,r*.6,0,0,6.283);cx.fill();
+  cx.fillStyle="#2a1d18";cx.beginPath();cx.arc(r*1.7,0,r*.4,0,6.283);cx.fill();
+  cx.fillStyle="#050302";cx.beginPath();cx.arc(r*1.8,-r*.2,r*.12,0,6.283);cx.arc(r*1.8,r*.2,r*.12,0,6.283);cx.fill();
+  cx.strokeStyle="#1a1210";cx.lineWidth=.7;cx.beginPath();cx.moveTo(r*1.95,-r*.12);cx.quadraticCurveTo(r*2.5,-r*.55,r*2.95,-r*.35);cx.moveTo(r*1.95,r*.12);cx.quadraticCurveTo(r*2.5,r*.55,r*2.95,r*.35);cx.stroke();
+  cx.restore();
+  if(b.oro){cx.globalCompositeOperation="lighter";cx.strokeStyle="rgba(255,235,160,"+.55*br+")";cx.lineWidth=1;var L=r*(3+2*br),a0=b.f*.8;
+    cx.beginPath();for(k=0;k<4;k++){cx.moveTo(lx,ly);cx.lineTo(lx+Math.cos(a0+k*1.5708)*L,ly+Math.sin(a0+k*1.5708)*L)}cx.stroke();cx.globalCompositeOperation="source-over"}
+}
+function cuadro(t){
+  var dt=Math.min(.05,(t-t0)/1000||0);t0=t;tt=t;
+  if(S&&W&&!$("t_jugar").classList.contains("oculto")){
+    while(bichos.length<CFG.cant){if(Math.random()<.05)crearEnjambre();else bichos.push(crear())}
+    var lim=tope();if(lim!==limPrev){limPrev=lim;if(lim)Snd.play("limite");$("limite").classList.toggle("oculto",!lim)}
+    cx.globalCompositeOperation="source-over";cx.globalAlpha=1;
+    cx.drawImage(fondoCv,0,0,W,H);
+    cx.globalCompositeOperation="lighter";
+    [[0,5],[.5,8]].forEach(function(m,j){var xx=((t/1000*m[1]+m[0]*W*1.8)%(W*1.8))-W*.9;cx.globalAlpha=.1;cx.drawImage(SPR.n,xx,H*(.66+j*.05),W*.9,H*.3)});
+    polvo.forEach(function(m){m.f+=dt;m.x+=m.vx*dt+Math.sin(m.f)*.2;m.y+=m.vy*dt;if(m.y<-10){m.y=H;m.x=Math.random()*W}if(m.x<-10)m.x=W;if(m.x>W+10)m.x=0;
+      cx.globalAlpha=.12+.1*Math.sin(m.f*2);cx.drawImage(SPR.l,m.x-m.s,m.y-m.s,m.s*2,m.s*2)});
+    cx.globalAlpha=1;cx.globalCompositeOperation="source-over";
+    if(lim){cx.fillStyle="rgba(4,6,20,.5)";cx.fillRect(0,0,W,H)}
+    bichos.forEach(function(b){
+      b.f+=dt*3;fisica(b,dt);b.x+=b.vx*dt+Math.sin(b.f)*.4;b.y+=b.vy*dt+Math.cos(b.f*.8)*.4;
+      if(b.x<0||b.x>W){b.vx*=-1;b.x=Math.max(0,Math.min(W,b.x))}
+      if(b.y<0||b.y>H*.85){b.vy*=-1;b.y=Math.max(0,Math.min(H*.85,b.y))}
+      var d=Math.atan2(b.vy,b.vx)-b.a;d=Math.atan2(Math.sin(d),Math.cos(d));b.a+=d*Math.min(1,dt*4);
+      b.tr=b.tr||[];b.tr.push([b.x-Math.cos(b.a)*b.r*2,b.y-Math.sin(b.a)*b.r*2]);if(b.tr.length>12)b.tr.shift();
+      luciernaga(b,.55+.45*Math.sin(b.f*1.7));if(b.tipo==="gig")hpPips(b);if(b.prac)aroGuia(b);
+    });
+    joyaCuadro(dt,t);
+    for(var i=ps.length-1;i>=0;i--){
+      var p=ps[i],u,col;p.t-=dt;if(p.t<=0){ps.splice(i,1);continue}
+      u=p.t/p.T;col=p.oro?"255,210,90":"200,255,150";
+      if(p.k==="a"){cx.globalCompositeOperation="lighter";cx.strokeStyle="rgba("+col+","+u*.8+")";cx.lineWidth=2*u+.5;cx.beginPath();cx.arc(p.x,p.y,(1-u)*radio()*1.1+6,0,6.283);cx.stroke()}
+      else if(p.k==="x"){p.y+=p.vy*dt;p.vy*=.96;cx.globalCompositeOperation="source-over";cx.globalAlpha=Math.min(1,u*1.6);cx.font="800 15px Figtree,system-ui,sans-serif";cx.textAlign="center";
+        cx.fillStyle=p.oro?"#ffd05a":"#d4ffb0";cx.shadowColor="rgba("+col+",.9)";cx.shadowBlur=8;cx.fillText(p.txt,p.x,p.y);cx.shadowBlur=0}
+      else{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.94;p.vy=p.vy*.94+40*dt;cx.globalCompositeOperation="lighter";cx.globalAlpha=u;cx.drawImage(p.oro?SPR.o:SPR.v,p.x-p.s,p.y-p.s,p.s*2,p.s*2)}
+      cx.globalAlpha=1;cx.globalCompositeOperation="source-over";
+    }
+    hud();
+    if(dedo&&!lim){var rr=radio();cx.globalCompositeOperation="lighter";cx.globalAlpha=.28;cx.drawImage(SPR.l,dedo[0]-rr*1.4,dedo[1]-rr*1.4,rr*2.8,rr*2.8);
+      cx.globalAlpha=1;cx.globalCompositeOperation="source-over";cx.beginPath();cx.strokeStyle="rgba(246,239,227,.45)";cx.lineWidth=1;cx.setLineDash([5,5]);cx.lineDashOffset=-t/60;cx.arc(dedo[0],dedo[1],rr,0,6.283);cx.stroke();cx.setLineDash([])}
+  }
+  requestAnimationFrame(cuadro);
+}
+
+/* ---------- Panel de administrador ---------- */
+function am(t,ok){var m=$("admMsg");m.textContent=t;m.className=ok?"ok":"bad"}
+function hex(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return("0"+x.toString(16)).slice(-2)}).join("")}
+function sal(){return hex(crypto.getRandomValues(new Uint8Array(16)))}
+function hash(pw,s){
+  var e=new TextEncoder();
+  return crypto.subtle.importKey("raw",e.encode(pw),"PBKDF2",false,["deriveBits"]).then(function(k){
+    return crypto.subtle.deriveBits({name:"PBKDF2",salt:e.encode(s),iterations:200000,hash:"SHA-256"},k,256)}).then(hex);
+}
+function admOk(){try{var t=+sessionStorage.getItem("luc_adm");return t&&Date.now()-t<1800000}catch(e){return false}}
+function abrir(){try{sessionStorage.setItem("luc_adm",Date.now())}catch(e){}}
+function lock(){try{return JSON.parse(localStorage.getItem("luc_lock"))||{n:0,hasta:0}}catch(e){return{n:0,hasta:0}}}
+function formAcceso(titulo,extra,btn,acc){
+  return '<div class="panel"><h2>'+titulo+'</h2><label for="au">Usuario</label><input id="au" autocomplete="username">'+
+  '<label for="ap">Contraseña</label><input id="ap" type="password" autocomplete="'+(extra?"new-password":"current-password")+'">'+
+  (extra?'<label for="ap2">Repite la contraseña</label><input id="ap2" type="password" autocomplete="new-password">':'')+
+  '<button data-a="'+acc+'">'+btn+'</button></div>';
+}
+function adm(){
+  var b=$("admBody"),d=Datos.leer();am("");
+  if(!window.crypto||!crypto.subtle){b.innerHTML='<div class="panel">Este navegador no permite el cifrado necesario. Abre el archivo con un navegador actualizado.</div>';return}
+  if(!d.admin){d.admin={u:"leidian",s:"9da9b734c2798282ef2b07297ba49e62",h:"e855ff6666dd115bf7b8d3912d693ecacf7fb0a5873ab3ec8bbfb31e910673d2"};Datos.guardar(d)}
+  if(!admOk()){b.innerHTML=formAcceso("Entrar",false,"Entrar","entrar");return}
+  var js=Object.keys(d.jugadores).map(function(k){return d.jugadores[k]}),hoy=hoyStr(),luz=0,usdt=0,act=0;
+  js.forEach(function(j){luz+=j.luzTot||0;usdt+=j.usdt||0;if(String(j.visto).slice(0,10)===hoy)act++});
+  var pend=d.retiros.filter(function(r){return r.estado==="pendiente"});
+  b.innerHTML='<div class="panel"><div class="rejilla">'+
+   '<div><b>'+js.length+'</b><span class="mute">jugadores</span></div><div><b>'+act+'</b><span class="mute">activos hoy</span></div>'+
+   '<div><b>'+Math.floor(luz)+'</b><span class="mute">luz total</span></div><div><b>'+f2(usdt)+'</b><span class="mute">USDT repartidos</span></div>'+
+   '<div><b>'+f2(d.fondo)+'</b><span class="mute">fondo restante</span></div><div><b>'+pend.length+'</b><span class="mute">retiros pendientes</span></div><div><b>'+f2(d.ingr||0)+'</b><span class="mute">USDT por premium</span></div></div></div>'+
+   '<div class="panel"><h2>Direcciones por validar</h2><div id="admVal"></div></div>'+
+   '<div class="panel"><h2>Depósitos por aprobar: '+(d.depositos||[]).filter(function(x){return x.estado==="pendiente"}).length+'</h2><div id="admDep"></div></div>'+
+   '<div class="panel"><h2>Retiros por aprobar: '+pend.length+'</h2><div id="admRet"></div></div>'+
+   '<div class="panel"><h2>Ajustes del juego</h2><div id="admCfg"></div></div>'+
+   '<div class="panel"><h2>Jugadores</h2><input id="buscar" placeholder="Buscar por nombre" aria-label="Buscar jugador"><div id="admLista"></div>'+
+   '<div class="btns"><button class="sec" data-a="csv">Exportar CSV</button></div></div>'+
+   '<div class="panel"><h2>Tu acceso</h2><label for="ap0">Contraseña actual</label><input id="ap0" type="password" autocomplete="current-password">'+
+   '<label for="ap">Contraseña nueva (mínimo 8)</label><input id="ap" type="password" autocomplete="new-password">'+
+   '<div class="btns"><button data-a="pass">Cambiar contraseña</button><button class="sec" data-a="salir">Cerrar sesión</button></div></div>'+
+   '<div class="panel aviso">Este panel solo ve los datos guardados en este navegador. Para ver jugadores de otros dispositivos hace falta un servidor.</div>';
+  listaVal();listaDep();listaRet();listaJug();ajustes();
+  $("buscar").oninput=listaJug;
+}
+function listaJug(){
+  var q=$("buscar").value.toLowerCase(),d=Datos.leer();
+  var js=Object.keys(d.jugadores).map(function(k){return d.jugadores[k]}).filter(function(j){return j.alias.toLowerCase().indexOf(q)>-1})
+   .sort(function(a,b){return b.nivel-a.nivel||b.luzTot-a.luzTot});
+  $("admLista").innerHTML=js.length?js.map(function(j){
+    return '<div class="item"><div class="fila"><b>'+esc(j.alias)+'</b><span class="mute">Nivel '+j.nivel+'</span></div>'+
+     '<div class="mute">Luz '+Math.floor(j.luz)+' (total '+Math.floor(j.luzTot||0)+'). USDT: '+f2(j.cred)+' disponibles, '+f2(j.usdt||0)+' ganados, '+f2(j.dep||0)+' depositados. Atrapadas: '+(j.atr||0)+'. Dirección: '+(j.val?esc(j.val.w)+' ('+j.val.estado+')':'sin validar')+'.</div>'+
+     '<div class="mute">Código: '+esc(j.cod||"-")+(j.ref&&d.jugadores[j.ref]?'. Referido por '+esc(d.jugadores[j.ref].alias):'')+'. Referidos: '+refs(d,j.id).length+'.</div>'+'<div class="mute">Mejoras: red '+j.it.tap+', auto '+j.it.auto+', alba '+(j.it.tema?"sí":"no")+'. Creado '+fch(j.creado)+'. Visto '+fch(j.visto)+'.</div><div class="btns"><button class="sec" data-a="editar" data-id="'+j.id+'">Editar</button></div><div id="ed_'+j.id+'"></div></div>'}).join(""):'<p class="mute">No hay jugadores que coincidan.</p>';
+}
+function listaRet(){
+  var r=Datos.leer().retiros.slice().reverse().sort(function(a,b){return(b.estado==="pendiente")-(a.estado==="pendiente")});
+  $("admRet").innerHTML=r.length?r.map(function(x){
+    return '<div class="item"><div class="fila"><b>'+esc(x.alias)+' · '+f2(x.monto)+' USDT</b><span class="'+(x.estado==="pagado"?"ok":x.estado==="rechazado"?"bad":"mute")+'">'+etq(x.estado)+'</span></div>'+
+     '<div class="mute" style="word-break:break-all">'+esc(x.wallet)+'<br>'+fch(x.fecha)+'</div>'+
+     (x.estado==="pendiente"?'<div class="btns"><button data-a="pagado" data-id="'+x.id+'">Marcar pagado</button><button class="sec" data-a="rechazado" data-id="'+x.id+'">Rechazar</button></div>':'')+'</div>'}).join(""):'<p class="mute">Todavía no hay solicitudes.</p>';
+}
+function listaDep(){
+  var r=(Datos.leer().depositos||[]).slice().reverse().sort(function(a,b){return(b.estado==="pendiente")-(a.estado==="pendiente")});
+  $("admDep").innerHTML=r.length?r.map(function(x){
+    return '<div class="item"><div class="fila"><b>'+esc(x.alias)+' · '+f2(x.monto)+' USDT</b><span class="'+(x.estado==="acreditado"?"ok":x.estado==="rechazado"?"bad":"mute")+'">'+etqD(x.estado)+'</span></div>'+
+     '<div class="mute" style="word-break:break-all">Hash: '+esc(x.tx)+'<br>'+fch(x.fecha)+'</div>'+
+     (x.estado==="pendiente"?'<div class="mute">Revisa en BscScan que llegó a tu dirección y confirma el monto recibido.</div>'+campo("dm_"+x.id,"Monto a acreditar (USDT)",x.monto)+
+      '<div class="btns"><button data-a="depok" data-id="'+x.id+'">Acreditar</button><button class="sec" data-a="depno" data-id="'+x.id+'">Rechazar</button></div>':'')+'</div>'}).join(""):'<p class="mute">Todavía no hay depósitos.</p>';
+}
+function resolverDep(id,ok){
+  var d=Datos.leer(),x=(d.depositos||[]).filter(function(y){return y.id===id})[0];
+  if(!x||x.estado!=="pendiente")return;
+  if(ok){
+    var j=d.jugadores[x.pid],n=r2(num("dm_"+id));
+    if(!j)return am("Ese jugador ya no existe.");
+    if(n<=0)return am("Escribe un monto mayor que 0 para acreditar.");
+    x.pedido=x.monto;x.monto=n;j.dep=r2((j.dep||0)+n);x.estado="acreditado";
+  }else x.estado="rechazado";
+  Datos.guardar(d);adm();am(ok?"Depósito acreditado al saldo de depósito del jugador.":"Depósito rechazado.",1);
+}
+function resolver(id,estado){
+  var d=Datos.leer(),r=d.retiros.filter(function(x){return x.id===id})[0];
+  if(!r||r.estado!=="pendiente")return;
+  r.estado=estado;
+  if(estado==="rechazado"&&d.jugadores[r.pid])d.jugadores[r.pid].cred=r2(d.jugadores[r.pid].cred+r.monto);
+  Datos.guardar(d);adm();
+}
+function campo(id,et,v,t){return '<label for="'+id+'">'+et+'</label><input id="'+id+'" value="'+esc(v)+'"'+(t?'':' inputmode="decimal"')+'>'}
+function num(id){var v=parseFloat(String($(id).value).replace(",","."));return isFinite(v)&&v>=0?v:0}
+function conf(b){if(b.getAttribute("data-c"))return true;b.setAttribute("data-c","1");b.setAttribute("data-t",b.textContent);b.textContent="Toca otra vez para confirmar";setTimeout(function(){b.removeAttribute("data-c");b.textContent=b.getAttribute("data-t")},4000);return false}
+var CAMPOS=[["alias","Nombre",1],["nivel","Nivel"],["luz","Luz"],["luzNivel","Luz del nivel actual"],["luzTot","Luz total"],["cred","USDT disponibles"],["dep","USDT depositados"],["usdt","USDT ganados"],["hoy","USDT de hoy"],["atr","Atrapadas"]];
+function editar(id){
+  var j=Datos.leer().jugadores[id],e=$("ed_"+id);if(!j)return;
+  if(e.innerHTML){e.innerHTML="";return}
+  var h='<div class="panel">';
+  CAMPOS.forEach(function(c){h+=campo("f_"+c[0],c[1],j[c[0]]||0,c[2])});
+  TIENDA.forEach(function(t){if(!t.unico)h+=campo("f_"+t.id,t.nombre+" (nivel)",j.it[t.id])});
+  h+=campo("f_tema","Tema Alba (0 no, 1 sí)",j.it.tema);
+  h+='<div class="btns"><button data-a="guardarj" data-id="'+id+'">Guardar cambios</button><button class="sec" data-a="resetpw" data-id="'+id+'">Quitar contraseña</button><button class="sec" data-a="borrarj" data-id="'+id+'">Eliminar jugador</button></div>';
+  h+='<h2 style="margin-top:14px">Dar a este jugador</h2><input id="f_dar" inputmode="decimal" placeholder="Cantidad" aria-label="Cantidad"><div class="btns"><button data-a="darusdt" data-id="'+id+'">Dar USDT</button><button data-a="darluz" data-id="'+id+'">Dar luz</button></div></div>';
+  e.innerHTML=h;
+}
+function guardarj(id){
+  var d=Datos.leer(),j=d.jugadores[id];if(!j)return;
+  var a=$("f_alias").value.trim();if(a.length<3)return am("El nombre necesita al menos 3 caracteres.");
+  j.alias=a;
+  ["nivel","luz","luzNivel","luzTot","cred","dep","usdt","hoy","atr"].forEach(function(k){j[k]=num("f_"+k)});j.dep=r2(j.dep);
+  j.nivel=Math.max(1,Math.floor(j.nivel));j.atr=Math.floor(j.atr);j.cred=r2(j.cred);j.usdt=r2(j.usdt);j.hoy=r2(j.hoy);
+  j.it.tap=Math.floor(num("f_tap"));j.it.auto=Math.floor(num("f_auto"));j.it.tema=num("f_tema")?1:0;
+  Datos.guardar(d);adm();am("Jugador guardado.",1);
+}
+function dar(id,tipo){
+  var d=Datos.leer(),j=d.jugadores[id],n=num("f_dar");
+  if(!j||!n)return am("Escribe una cantidad mayor que 0.");
+  if(tipo==="usdt"){j.cred=r2(j.cred+n);j.usdt=r2((j.usdt||0)+n)}else{j.luz+=n;j.luzTot=(j.luzTot||0)+n}
+  Datos.guardar(d);adm();am("Listo: "+n+(tipo==="usdt"?" USDT":" de luz")+" para "+j.alias+".",1);
+}
+function borrarj(id){var d=Datos.leer();delete d.jugadores[id];Datos.guardar(d);adm();am("Jugador eliminado.",1)}
+function ajustes(){
+  var d=Datos.leer(),h="";aplicar(d);
+  [["recNivel","USDT por nivel"],["topeDia","Tope diario por jugador (USDT)"],["minRetiro","Retiro mínimo (USDT)"],["luzNivel","Luz base por nivel"],["cant","Luciérnagas en pantalla"],["probOro","Probabilidad de dorada (%)"],["valor","Luz por luciérnaga"],["valorOro","Luz por dorada"],["radio","Radio de captura (px)"],["depMonto","Depósito de validación (USDT)"],["minDep","Depósito mínimo de fondos (USDT)"],["swapLuz","Luz por 1 USDT (cambio)"],["swapMin","Mínimo de luz por cambio"],["frascoPrecio","Frasco: precio (USDT)"],["frascoDias","Frasco: duración (días)"],["frascoUsdt","Frasco: límite diario extra (USDT)"],["frascoMax","Frasco: máximo activos por plan"],["refRegistro","Referidos: luz por registro"],["refPct","Referidos: % de comisión de su luz"],["refPremium","Referidos: luz cuando compra premium"],["comboMax","Combo: multiplicador máximo"],["bonoDia","Luz de bono máxima por día (combos y poderes)"],["probHuid","Luciérnaga huidiza (% de apariciones)"],["probGig","Luciérnaga gigante (% de apariciones)"],["huevo","Huevo de mascota (luz)"],["eqMeta","Equipo: meta semanal (luz)"],["eqPremio","Equipo: premio semanal (luz de bono)"],["regMax","Regalo: máximo por envío (luz)"],["regDia","Regalo: envíos por día"],["regRecDia","Regalo: máximo recibido por día (luz)"]].forEach(function(c){h+=campo("c_"+c[0],c[1],CFG[c[0]])});
+  h+=campo("c_fondo","Fondo global (USDT)",d.fondo)+campo("c_dir","Dirección de depósito (BEP20)",CFG.depDir,1)+campo("c_anuncio","Anuncio para jugadores (vacío = ninguno)",CFG.anuncio||"",1);
+  TIENDA.forEach(function(t,i){h+='<h2 style="margin-top:14px">Tienda: '+esc(t.nombre)+'</h2>'+campo("t_n"+i,"Nombre",t.nombre,1)+campo("t_d"+i,"Descripción",t.desc,1)+campo("t_p"+i,"Precio base (luz)",t.base)});
+  PLANS().forEach(function(p,i){if(!i)return;h+='<h2 style="margin-top:14px">'+esc(p.nombre)+' (plan '+(i+1)+')</h2>'+campo("pl_p"+i,"Precio (USDT)",p.precio)+campo("pl_d"+i,"Duración (días)",p.dias)+campo("pl_u"+i,"Límite diario extra (USDT)",p.usdt)});
+  h+='<div class="btns"><button data-a="guardarc">Guardar ajustes</button></div><div class="btns"><button class="sec" data-a="reiniciar">Reiniciar progreso de todos</button></div>';
+  $("admCfg").innerHTML=h;
+}
+function guardarc(){
+  var d=Datos.leer();d.cfg=d.cfg||{};
+  ["recNivel","topeDia","minRetiro","luzNivel","cant","probOro","valor","valorOro","radio","depMonto","minDep","swapLuz","swapMin","frascoPrecio","frascoDias","frascoUsdt","frascoMax","refRegistro","refPct","refPremium","comboMax","bonoDia","probHuid","probGig","huevo","eqMeta","eqPremio","regMax","regDia","regRecDia"].forEach(function(k){d.cfg[k]=num("c_"+k)});
+  d.cfg.cant=Math.max(1,Math.min(40,Math.floor(d.cfg.cant)));d.cfg.luzNivel=Math.max(1,d.cfg.luzNivel);d.cfg.probOro=Math.min(100,d.cfg.probOro);
+  d.cfg.anuncio=$("c_anuncio").value.trim();d.cfg.depDir=$("c_dir").value.trim();d.fondo=r2(num("c_fondo"));
+  d.tienda=TIENDA.map(function(t,i){return{nombre:$("t_n"+i).value.trim()||t.nombre,desc:$("t_d"+i).value.trim(),base:Math.max(1,Math.round(num("t_p"+i)))}});
+  d.cfg.planes=PL.map(function(p,i){return i?{precio:num("pl_p"+i),dias:Math.floor(num("pl_d"+i)),usdt:num("pl_u"+i)}:{}});
+  Datos.guardar(d);aplicar(d);adm();am("Ajustes guardados.",1);
+}
+function reiniciar(){
+  var d=Datos.leer();
+  Object.keys(d.jugadores).forEach(function(k){var j=d.jugadores[k];j.luz=0;j.luzNivel=0;j.luzTot=0;j.nivel=1;j.cred=0;j.usdt=0;j.atr=0;j.hoy=0;j.it={tap:0,auto:0,tema:0}});
+  Datos.guardar(d);adm();am("Progreso de todos los jugadores reiniciado.",1);
+}
+function listaVal(){
+  var d=Datos.leer(),h="";
+  Object.keys(d.jugadores).forEach(function(k){var j=d.jugadores[k],v=j.val;if(!v||v.estado!=="pendiente")return;
+    h+='<div class="item"><b>'+esc(j.alias)+'</b><div class="mute" style="word-break:break-all">'+esc(v.w)+'<br>'+fch(v.fecha)+(v.tx?'<br>Hash: '+esc(v.tx):'')+'</div>'+
+     '<div class="mute">Revisa en BscScan que llegaron '+v.monto+' USDT desde esa dirección a la tuya.</div>'+
+     '<div class="btns"><button data-a="valok" data-id="'+j.id+'">Validar y acreditar '+v.monto+'</button><button class="sec" data-a="valno" data-id="'+j.id+'">Rechazar</button></div></div>'});
+  $("admVal").innerHTML=h||'<p class="mute">No hay direcciones pendientes.</p>';
+}
+function validar(id,ok){
+  var d=Datos.leer(),j=d.jugadores[id],k;if(!j||!j.val||j.val.estado!=="pendiente")return;
+  if(ok){
+    for(k in d.jugadores){var o=d.jugadores[k];if(o.id!==id&&o.val&&o.val.estado==="validada"&&o.val.w.toLowerCase()===j.val.w.toLowerCase())return am("Esa dirección ya está validada por otro jugador.")}
+    j.val.estado="validada";j.cred=r2(j.cred+j.val.monto);
+  }else j.val.estado="rechazada";
+  Datos.guardar(d);adm();am(ok?"Dirección validada y saldo acreditado.":"Validación rechazada.",1);
+}
+function resetpw(id){var d=Datos.leer();if(d.jugadores[id]){delete d.jugadores[id].pw;Datos.guardar(d)}adm();am("Contraseña quitada. El jugador debe definir una nueva al entrar.",1)}
+function crearAdmin(){
+  var u=$("au").value.trim(),p=$("ap").value;
+  if(u.length<3)return am("El usuario necesita al menos 3 caracteres.");
+  if(p.length<8)return am("La contraseña necesita al menos 8 caracteres.");
+  if(p!==$("ap2").value)return am("Las contraseñas no coinciden.");
+  var s=sal();
+  hash(p,s).then(function(h){var d=Datos.leer();if(d.admin)return;d.admin={u:u.toLowerCase(),s:s,h:h};Datos.guardar(d);abrir();adm()});
+}
+function entrarAdmin(){
+  var L=lock();
+  if(Date.now()<L.hasta)return am("Demasiados intentos. Espera "+Math.ceil((L.hasta-Date.now())/1000)+" segundos.");
+  var d=Datos.leer(),u=$("au").value.trim().toLowerCase();
+  hash($("ap").value,d.admin.s).then(function(h){
+    if(u===d.admin.u&&h===d.admin.h){try{localStorage.removeItem("luc_lock")}catch(e){}abrir();adm()}
+    else{L.n++;if(L.n>=5)L.hasta=Date.now()+60000*(L.n-4);try{localStorage.setItem("luc_lock",JSON.stringify(L))}catch(e){}am("Usuario o contraseña incorrectos.")}
+  });
+}
+function cambiarPass(){
+  var d=Datos.leer(),n=$("ap").value;
+  if(n.length<8)return am("La contraseña nueva necesita al menos 8 caracteres.");
+  hash($("ap0").value,d.admin.s).then(function(h){
+    if(h!==d.admin.h)return am("La contraseña actual no es correcta.");
+    var s=sal();hash(n,s).then(function(h2){var x=Datos.leer();x.admin.s=s;x.admin.h=h2;Datos.guardar(x);am("Contraseña cambiada.");$("ap").value="";$("ap0").value=""});
+  });
+}
+function celda(c){c=String(c);if(/^[=+\-@]/.test(c))c="'"+c;return'"'+c.replace(/"/g,'""')+'"'}
+function csv(){
+  var d=Datos.leer(),f=[["id","alias","nivel","luz","usdt_disponible","usdt_ganado","atrapadas","creado","visto"]];
+  Object.keys(d.jugadores).forEach(function(k){var j=d.jugadores[k];f.push([j.id,j.alias,j.nivel,Math.floor(j.luz),j.cred,j.usdt||0,j.atr||0,j.creado,j.visto])});
+  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([f.map(function(r){return r.map(celda).join(",")}).join("\n")],{type:"text/csv"}));
+  a.download="jugadores.csv";a.click();
+}
+$("admBody").addEventListener("click",function(e){
+  var a=e.target.getAttribute&&e.target.getAttribute("data-a");if(!a)return;
+  if(a==="crear")crearAdmin();else if(a==="entrar")entrarAdmin();
+  else if(a==="salir"){try{sessionStorage.removeItem("luc_adm")}catch(x){}adm()}
+  else if(a==="pass")cambiarPass();else if(a==="csv")csv();
+  else if(a==="pagado"||a==="rechazado")resolver(e.target.getAttribute("data-id"),a);
+  else if(a==="depok"||a==="depno")resolverDep(e.target.getAttribute("data-id"),a==="depok");
+  else{var i=e.target.getAttribute("data-id");
+    if(a==="editar")editar(i);else if(a==="guardarj")guardarj(i);else if(a==="darusdt")dar(i,"usdt");else if(a==="darluz")dar(i,"luz");
+    else if(a==="resetpw"){if(conf(e.target))resetpw(i)}else if(a==="borrarj"){if(conf(e.target))borrarj(i)}else if(a==="guardarc")guardarc();else if(a==="valok")validar(i,1);else if(a==="valno")validar(i,0);else if(a==="reiniciar"){if(conf(e.target))reiniciar()}}
+});
+$("admBody").addEventListener("keydown",function(e){
+  if(e.key!=="Enter")return;var b=$("admBody").querySelector('button[data-a="crear"],button[data-a="entrar"]');if(b)b.click();
+});
+var enAdmin=location.hash==="#admin";
+function ruta(){
+  var a=enAdmin&&!S; /* con una sesión de jugador abierta, el panel no se abre */
+  $("admin").classList.toggle("oculto",!a);$("app").classList.toggle("oculto",a);
+  if(a){document.documentElement.setAttribute("data-tema","noche");adm()}
+  else{if(S){S=Datos.leer().jugadores[S.id]||null;if(!S){try{localStorage.removeItem(SESK)}catch(e){}}mostrar()}document.documentElement.setAttribute("data-tema",S&&S.it.tema?"alba":"noche")}
+}
+window.addEventListener("hashchange",function(){enAdmin=location.hash==="#admin";ruta()});
+$("lnkAdmin").onclick=function(e){e.preventDefault();enAdmin=true;try{if(location.hash!=="#admin")history.replaceState(null,"","#admin")}catch(x){}ruta()};
+$("volver").onclick=function(){try{sessionStorage.removeItem("luc_adm")}catch(e){}enAdmin=false;try{history.replaceState(null,"",location.pathname+location.search)}catch(x){}ruta()};
+
+/* ---------- Inicio ---------- */
+try{var id=localStorage.getItem(SESK);S=id&&Datos.leer().jugadores[id]||null}catch(e){S=null}
+mostrar();ruta();requestAnimationFrame(cuadro);
+try{var rp=new URLSearchParams(location.search).get("ref");if(rp&&!S){$("rRef").value=rp.toUpperCase().slice(0,12);modo("reg")}}catch(e){}
+})();
+</script>
+</body>
+</html>
